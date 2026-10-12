@@ -114,7 +114,7 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
                                             <!-- Tombol Aksi -->
                                             <td>
                                                 <?php if($row['status_pembayaran'] == 'belum_bayar'): ?>
-                                                    <a href="#" class="btn btn-sm btn-primary">Bayar Sekarang</a>
+                                                    <a href="invoice.php?id=<?= $row['id_pesanan']; ?>" class="btn btn-sm btn-primary">Bayar Sekarang</a>
                                                 <?php else: ?>
                                                     <a href="#" class="btn btn-sm btn-outline-secondary">Lacak Progres</a>
                                                 <?php endif; ?>
