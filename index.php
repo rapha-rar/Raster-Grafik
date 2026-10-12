@@ -163,7 +163,7 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
         </div>
     </section>
 
-    <!-- 4. KATALOG PRODUK DINAMIS (Mengambil dari Database MySQL) -->
+    <!-- 4. KATALOG PRODUK DINAMIS -->
     <section id="katalog" class="py-5 bg-light">
         <div class="container">
             <h2 class="text-center fw-bold mb-5">Pilihan Produk Terlaris</h2>
@@ -171,9 +171,15 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
                 
                 <?php if (mysqli_num_rows($query_produk) > 0) : ?>
                     <?php while ($produk = mysqli_fetch_assoc($query_produk)) : ?>
+                        <?php 
+                            // Cek apakah gambar menggunakan URL luar (http) atau file foto lokal di folder uploads
+                            $img_src = (strpos($produk['gambar_katalog'], 'http') === 0) 
+                                ? $produk['gambar_katalog'] 
+                                : 'public/uploads/produk/' . $produk['gambar_katalog'];
+                        ?>
                         <div class="col-md-6 col-lg-3">
                             <div class="card h-100 shadow-sm border-0">
-                                <img src="<?= $produk['gambar_katalog']; ?>" class="card-img-top" alt="<?= $produk['nama_produk']; ?>">
+                                <img src="<?= $img_src; ?>" class="card-img-top" alt="<?= $produk['nama_produk']; ?>" style="height: 200px; object-fit: cover;">
                                 <div class="card-body text-center d-flex flex-column">
                                     <h5 class="card-title fw-bold"><?= $produk['nama_produk']; ?></h5>
                                     <p class="card-text text-muted small flex-grow-1"><?= $produk['deskripsi']; ?></p>
@@ -225,6 +231,6 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
     </footer>
 
     <!-- Script Bootstrap -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

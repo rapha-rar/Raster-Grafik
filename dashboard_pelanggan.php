@@ -1,8 +1,14 @@
 <?php
+session_start();
 require_once 'config/database.php';
 
-// Simulasi Pelanggan yang sedang Login (Menggunakan ID Dummy yang kita buat sebelumnya)
-$id_user = 1; 
+// Proteksi Halaman: Wajib Login & Role Pelanggan
+if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'pelanggan') {
+    header("Location: login.php");
+    exit();
+}
+
+$id_user = $_SESSION['id_user'];
 
 // Menarik data profil pelanggan
 $query_user = mysqli_query($koneksi, "SELECT * FROM users WHERE id_user = $id_user");
@@ -39,8 +45,8 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
                 <span class="text-biru">RASTER</span><span class="text-merah">GRAFIK</span>
             </a>
             <div class="d-flex align-items-center">
-                <span class="me-3 fw-semibold">Halo, <?= $user['nama']; ?>!</span>
-                <a href="index.php" class="btn btn-outline-danger btn-sm">Keluar</a>
+                <span class="me-3 fw-semibold">Halo, <?= htmlspecialchars($user['nama']); ?>!</span>
+                <a href="logout.php" class="btn btn-outline-danger btn-sm">Keluar</a>
             </div>
         </div>
     </nav>
@@ -54,12 +60,12 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
                 <div class="card border-0 shadow-sm">
                     <div class="card-body text-center">
                         <img src="https://ui-avatars.com/api/?name=<?= urlencode($user['nama']); ?>&background=0088cc&color=fff" class="rounded-circle mb-3" width="80" alt="Avatar">
-                        <h5 class="fw-bold mb-1"><?= $user['nama']; ?></h5>
-                        <p class="text-muted small mb-3"><?= $user['email']; ?></p>
+                        <h5 class="fw-bold mb-1"><?= htmlspecialchars($user['nama']); ?></h5>
+                        <p class="text-muted small mb-3"><?= htmlspecialchars($user['email']); ?></p>
                         <hr>
                         <ul class="list-unstyled text-start small">
-                            <li class="mb-2">📞 <?= $user['no_whatsapp']; ?></li>
-                            <li>📍 <?= $user['alamat_lengkap']; ?></li>
+                            <li class="mb-2">📞 <?= htmlspecialchars($user['no_whatsapp']); ?></li>
+                            <li>📍 <?= htmlspecialchars($user['alamat_lengkap']); ?></li>
                         </ul>
                     </div>
                 </div>
@@ -116,7 +122,7 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
                                                 <?php if($row['status_pembayaran'] == 'belum_bayar'): ?>
                                                     <a href="invoice.php?id=<?= $row['id_pesanan']; ?>" class="btn btn-sm btn-primary">Bayar Sekarang</a>
                                                 <?php else: ?>
-                                                    <a href="#" class="btn btn-sm btn-outline-secondary">Lacak Progres</a>
+                                                    <a href="invoice.php?id=<?= $row['id_pesanan']; ?>" class="btn btn-sm btn-outline-secondary">Lihat Invoice</a>
                                                 <?php endif; ?>
                                             </td>
                                         </tr>

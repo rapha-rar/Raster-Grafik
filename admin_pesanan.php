@@ -1,5 +1,14 @@
 <?php
+session_start();
 require_once 'config/database.php';
+
+// Proteksi Halaman: Wajib Login & Role Admin
+if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
+    header("Location: login.php");
+    exit();
+}
+
+$id_admin = $_SESSION['id_user'];
 
 // --- LOGIKA AKSI ADMIN ---
 
@@ -11,7 +20,7 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'verifikasi_pembayaran') {
     mysqli_query($koneksi, "UPDATE pesanan SET status_pembayaran = 'lunas', status_pesanan = 'proses_cetak' WHERE id_pesanan = $id_pesanan");
     
     // Catat ke riwayat status
-    mysqli_query($koneksi, "INSERT INTO riwayat_status (id_pesanan, status, keterangan, diupdate_oleh) VALUES ($id_pesanan, 'Pembayaran Diverifikasi', 'Pembayaran telah dikonfirmasi LUNAS oleh Admin. Pesanan masuk antrean cetak.', 1)");
+    mysqli_query($koneksi, "INSERT INTO riwayat_status (id_pesanan, status, keterangan, diupdate_oleh) VALUES ($id_pesanan, 'Pembayaran Diverifikasi', 'Pembayaran telah dikonfirmasi LUNAS oleh Admin. Pesanan masuk antrean cetak.', $id_admin)");
     
     echo "<script>alert('Pembayaran berhasil diverifikasi! Pesanan lanjut ke Proses Cetak.'); window.location.href='admin_pesanan.php';</script>";
 }
@@ -24,7 +33,7 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'update_status_pesanan') {
     mysqli_query($koneksi, "UPDATE pesanan SET status_pesanan = '$status_baru' WHERE id_pesanan = $id_pesanan");
     
     $ket = "Status pesanan diperbarui menjadi: " . strtoupper(str_replace('_', ' ', $status_baru));
-    mysqli_query($koneksi, "INSERT INTO riwayat_status (id_pesanan, status, keterangan, diupdate_oleh) VALUES ($id_pesanan, '$status_baru', '$ket', 1)");
+    mysqli_query($koneksi, "INSERT INTO riwayat_status (id_pesanan, status, keterangan, diupdate_oleh) VALUES ($id_pesanan, '$status_baru', '$ket', $id_admin)");
     
     echo "<script>alert('Status pesanan berhasil diperbarui!'); window.location.href='admin_pesanan.php';</script>";
 }
@@ -47,7 +56,6 @@ $query_pesanan = mysqli_query($koneksi, "
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root { --biru-rg: #0088cc; --merah-rg: #cc0000; }
-        .bg-rg { background-color: #1a1e21; color: white; }
         .text-merah { color: var(--merah-rg); }
         .text-biru { color: var(--biru-rg); }
     </style>
@@ -55,12 +63,25 @@ $query_pesanan = mysqli_query($koneksi, "
 <body class="bg-light">
 
     <!-- Top Navigation Admin -->
-    <nav class="navbar navbar-dark bg-dark shadow-sm mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm mb-4">
         <div class="container-fluid px-4">
             <a class="navbar-brand fw-bold" href="#">
                 <span class="text-biru">RASTER</span><span class="text-merah">GRAFIK</span> <small class="fs-6 text-muted">| Panel Admin</small>
             </a>
-            <span class="navbar-text text-white">Administrator</span>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3">
+                    <li class="nav-item">
+                        <a class="nav-link active fw-bold text-warning" href="admin_pesanan.php">Kelola Pesanan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin_produk.php">Kelola Produk</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <span class="navbar-text text-white me-3">Halo, <?= htmlspecialchars($_SESSION['nama']); ?></span>
+                    <a href="logout.php" class="btn btn-outline-danger btn-sm">Keluar</a>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -91,8 +112,8 @@ $query_pesanan = mysqli_query($koneksi, "
                                 <tr>
                                     <td class="fw-bold"><?= $row['nomor_invoice']; ?></td>
                                     <td>
-                                        <strong><?= $row['nama_pelanggan']; ?></strong><br>
-                                        <small class="text-muted">WA: <?= $row['no_whatsapp']; ?></small>
+                                        <strong><?= htmlspecialchars($row['nama_pelanggan']); ?></strong><br>
+                                        <small class="text-muted">WA: <?= htmlspecialchars($row['no_whatsapp']); ?></small>
                                     </td>
                                     <td><span class="badge bg-outline-dark border text-dark"><?= str_replace('_', ' ', $row['metode_pengiriman']); ?></span></td>
                                     <td class="fw-bold text-danger">Rp <?= number_format($row['total_tagihan'], 0, ',', '.'); ?></td>
@@ -165,5 +186,6 @@ $query_pesanan = mysqli_query($koneksi, "
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

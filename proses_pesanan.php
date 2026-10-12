@@ -1,7 +1,13 @@
 <?php
+session_start();
 require_once 'config/database.php';
 
-// Cek apakah data dikirim dari form
+// Proteksi: Wajib Login untuk Memproses Pesanan
+if (!isset($_SESSION['id_user'])) {
+    header("Location: login.php");
+    exit();
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // 1. Tangkap data dari form (pesan.php)
@@ -12,20 +18,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $catatan = mysqli_real_escape_string($koneksi, $_POST['catatan']);
     $pengiriman = $_POST['pengiriman'];
 
-    // Data Dummy (Nanti diganti dengan data dari fitur Login)
-    $id_user = 1; 
-    $id_produk = 1; 
-    $harga_dasar = 20000;
+    // Ambil ID User dari Sesi Login yang Aktif
+    $id_user = $_SESSION['id_user']; 
+    
+    // Ambil ID Produk yang Dipilih (default ke ID 1 jika tidak diset)
+    $id_produk = isset($_POST['id_produk']) ? intval($_POST['id_produk']) : 1; 
 
-    // 2. Hitung Ulang di Server (Keamanan: Jangan percaya angka dari browser/JS)
+    // Ambil harga dasar produk dari database
+    $query_harga = mysqli_query($koneksi, "SELECT harga_dasar FROM produk WHERE id_produk = $id_produk");
+    $data_harga = mysqli_fetch_assoc($query_harga);
+    $harga_dasar = $data_harga ? floatval($data_harga['harga_dasar']) : 20000;
+
+    // 2. Hitung Ulang di Server
     $subtotal = $panjang * $lebar * $qty * $harga_dasar;
     $biaya_desain = ($opsi_desain == 'custom_desain') ? 50000 : 0;
     $total_tagihan = $subtotal + $biaya_desain;
 
-    // 3. Generate Nomor Invoice (Contoh: INV-20261012-456)
+    // 3. Generate Nomor Invoice
     $nomor_invoice = "INV-" . date("Ymd") . "-" . rand(100, 999);
 
-    // 4. Mulai Proses Simpan ke Database (Transaction)
+    // 4. Mulai Proses Simpan ke Database
     mysqli_begin_transaction($koneksi);
 
     try {
@@ -34,26 +46,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         VALUES ('$nomor_invoice', $id_user, '$pengiriman', $total_tagihan)";
         mysqli_query($koneksi, $sql_pesanan);
         
-        $id_pesanan_baru = mysqli_insert_id($koneksi); // Ambil ID pesanan yang baru saja dibuat
+        $id_pesanan_baru = mysqli_insert_id($koneksi);
 
         // B. Simpan ke tabel detail_pesanan
         $sql_detail = "INSERT INTO detail_pesanan (id_pesanan, id_produk, panjang, lebar, jumlah, opsi_desain, biaya_desain_custom, catatan_desain, subtotal) 
                        VALUES ($id_pesanan_baru, $id_produk, $panjang, $lebar, $qty, '$opsi_desain', $biaya_desain, '$catatan', $subtotal)";
         mysqli_query($koneksi, $sql_detail);
 
-        // C. Simpan ke tabel riwayat_status (Timeline)
+        // C. Simpan ke tabel riwayat_status
         $sql_riwayat = "INSERT INTO riwayat_status (id_pesanan, status, keterangan, diupdate_oleh) 
                         VALUES ($id_pesanan_baru, 'Menunggu Pembayaran', 'Pesanan baru dibuat, menunggu transfer dari pelanggan.', $id_user)";
         mysqli_query($koneksi, $sql_riwayat);
 
-        // Jika semua sukses, kunci perubahan ke database
+        // Kunci perubahan ke database
         mysqli_commit($koneksi);
         
-        // Redirect ke halaman sukses / invoice
-        echo "<script>alert('Pesanan Berhasil Dibuat! Nomor Invoice Anda: $nomor_invoice'); window.location.href='index.php';</script>";
+        // Redirect ke dashboard pelanggan
+        echo "<script>alert('Pesanan Berhasil Dibuat! Nomor Invoice Anda: $nomor_invoice'); window.location.href='dashboard_pelanggan.php';</script>";
 
     } catch (Exception $e) {
-        // Jika ada error, batalkan semua simpanan
         mysqli_rollback($koneksi);
         echo "Gagal menyimpan pesanan: " . $e->getMessage();
     }
