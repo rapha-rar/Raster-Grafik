@@ -1,13 +1,38 @@
 <?php
-// Untuk sementara kita panggil koneksi DB (nantinya digunakan untuk insert pesanan)
+session_start();
 require_once 'config/database.php';
+
+// Proteksi Halaman: Wajib Login
+if (!isset($_SESSION['id_user'])) {
+    header("Location: login.php");
+    exit();
+}
+
+// 1. Tangkap ID Produk dari URL (Default ke ID 1 jika tidak diset)
+$id_produk = isset($_GET['id_produk']) ? intval($_GET['id_produk']) : 1;
+
+// 2. Ambil data produk dari database
+$query_produk = mysqli_query($koneksi, "SELECT * FROM produk WHERE id_produk = $id_produk");
+$produk = mysqli_fetch_assoc($query_produk);
+
+// Jika ID produk tidak ditemukan di database, fallback ke produk pertama
+if (!$produk) {
+    $query_fallback = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk ASC LIMIT 1");
+    $produk = mysqli_fetch_assoc($query_fallback);
+}
+
+// Ambil data user yang sedang login
+$id_user = $_SESSION['id_user'];
+$query_user = mysqli_query($koneksi, "SELECT * FROM users WHERE id_user = $id_user");
+$user = mysqli_fetch_assoc($query_user);
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Pemesanan - Raster Grafik</title>
+    <title>Pesan Produk - Raster Grafik</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
@@ -15,206 +40,197 @@ require_once 'config/database.php';
             --merah-rg: #cc0000;
         }
         .text-merah { color: var(--merah-rg); }
-        .bg-merah { background-color: var(--merah-rg); color: white; }
-        .sticky-ringkasan {
-            position: -webkit-sticky;
-            position: sticky;
-            top: 20px;
+        .text-biru { color: var(--biru-rg); }
+        .btn-primer { background-color: var(--merah-rg); color: white; font-weight: bold; }
+        .btn-primer:hover { background-color: #aa0000; color: white; }
+        .card-produk-header {
+            background-color: #f8f9fa;
+            border-bottom: 3px solid var(--biru-rg);
         }
     </style>
 </head>
 <body class="bg-light">
 
-    <!-- Navbar Sederhana -->
-    <nav class="navbar navbar-light bg-white shadow-sm mb-4">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
         <div class="container">
             <a class="navbar-brand fw-bold" href="index.php">
-                <span style="color:var(--biru-rg);">RASTER</span><span class="text-merah">GRAFIK</span>
+                <span class="text-biru">RASTER</span><span class="text-merah">GRAFIK</span>
             </a>
-            <a href="index.php" class="btn btn-outline-secondary btn-sm">Batal & Kembali</a>
+            <div class="d-flex align-items-center">
+                <span class="me-3 fw-semibold">Halo, <?= htmlspecialchars($user['nama']); ?>!</span>
+                <a href="dashboard_pelanggan.php" class="btn btn-outline-secondary btn-sm me-2">Dashboard</a>
+                <a href="logout.php" class="btn btn-outline-danger btn-sm">Keluar</a>
+            </div>
         </div>
     </nav>
 
     <div class="container pb-5">
-        <h3 class="fw-bold mb-4">Buat Pesanan: <span class="text-merah">Spanduk Flexi 280gr</span></h3>
-        
-        <!-- FORM DIMULAI DI SINI -->
-        <form action="proses_pesanan.php" method="POST" enctype="multipart/form-data" class="row">
-            
-            <!-- KOLOM KIRI: FORM INPUT -->
-            <div class="col-lg-8 mb-4">
-                <div class="card border-0 shadow-sm p-4">
-                    <h5 class="fw-bold mb-3 border-bottom pb-2">1. Spesifikasi Cetak</h5>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label class="form-label">Panjang (Meter)</label>
-                            <input type="number" id="input-panjang" name="panjang" class="form-control calc-trigger" step="0.1" min="0.1" value="1" placeholder="Contoh: 3" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Lebar (Meter)</label>
-                            <input type="number" id="input-lebar" name="lebar" class="form-control calc-trigger" step="0.1" min="0.1" value="1" placeholder="Contoh: 2" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Jumlah Cetak (Pcs)</label>
-                            <input type="number" id="input-qty" name="qty" class="form-control calc-trigger" min="1" value="1" required>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                    <div class="card-header card-produk-header p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-secondary mb-2 text-capitalize">
+                                    Tipe Harga: <?= htmlspecialchars($produk['tipe_harga']); ?>
+                                </span>
+                                <h3 class="fw-bold mb-1"><?= htmlspecialchars($produk['nama_produk']); ?></h3>
+                                <p class="text-muted small mb-0"><?= htmlspecialchars($produk['deskripsi']); ?></p>
+                            </div>
+                            <div class="text-end">
+                                <span class="small text-muted d-block">Harga Dasar:</span>
+                                <span class="fw-bold fs-4 text-merah">
+                                    Rp <?= number_format($produk['harga_dasar'], 0, ',', '.'); ?>
+                                </span>
+                                <small class="text-muted d-block">
+                                    <?= ($produk['tipe_harga'] == 'meteran') ? '/ m²' : '/ pcs'; ?>
+                                </small>
+                            </div>
                         </div>
                     </div>
 
-                    <h5 class="fw-bold mt-4 mb-3 border-bottom pb-2">2. Opsi Desain</h5>
-                    <div class="mb-3">
-                        <select id="opsi-desain" name="opsi_desain" class="form-select calc-trigger" required>
-                            <option value="upload_sendiri" data-harga="0">Upload File Sendiri (Gratis)</option>
-                            <option value="pilih_template" data-harga="0">Pilih Template dari Raster Grafik (Gratis)</option>
-                            <option value="custom_desain" data-harga="50000">Request Custom Desain (+ Rp 50.000)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Catatan / Brief Desain</label>
-                        <textarea class="form-control" name="catatan" rows="3" placeholder="Contoh: Tolong warna dominan merah, kasih logo halal..."></textarea>
-                    </div>
+                    <div class="card-body p-4">
+                        <form action="proses_pesanan.php" method="POST" enctype="multipart/form-data">
+                            
+                            <!-- Input Hidden Data Produk -->
+                            <input type="hidden" name="id_produk" value="<?= $produk['id_produk']; ?>">
+                            <input type="hidden" id="harga_dasar" value="<?= $produk['harga_dasar']; ?>">
+                            <input type="hidden" id="tipe_harga" value="<?= $produk['tipe_harga']; ?>">
 
-                    <div class="mb-3">
-                        <label class="form-label">Upload File / Referensi (Opsional)</label>
-                        <!-- Pastikan name atribut diset agar file bisa ditangkap PHP nantinya -->
-                        <input class="form-control" type="file" name="file_desain">
-                        <small class="text-muted">Maksimal ukuran file: 20MB. Format: JPG, PNG, PDF, CDR.</small>
+                            <h5 class="fw-bold mb-3">1. Ukuran & Jumlah Cetakan</h5>
+                            
+                            <?php if ($produk['tipe_harga'] == 'meteran') : ?>
+                                <div class="row g-3 mb-3" id="box_ukuran_meteran">
+                                    <div class="col-md-6">
+                                        <label class="form-label font-weight-bold">Panjang (Meter)</label>
+                                        <input type="number" step="0.1" min="0.1" name="panjang" id="panjang" class="form-control" value="1" required oninput="hitungTotal()">
+                                        <small class="text-muted">Misal: 1.5 untuk 1,5 meter</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label font-weight-bold">Lebar (Meter)</label>
+                                        <input type="number" step="0.1" min="0.1" name="lebar" id="lebar" class="form-control" value="1" required oninput="hitungTotal()">
+                                        <small class="text-muted">Misal: 1 untuk 1 meter</small>
+                                    </div>
+                                </div>
+                            <?php else : ?>
+                                <!-- Jika tipe harga satuan, panjang dan lebar diset default 1 -->
+                                <input type="hidden" name="panjang" id="panjang" value="1">
+                                <input type="hidden" name="lebar" id="lebar" value="1">
+                                <div class="alert alert-info py-2 small mb-3">
+                                    ℹ️ Produk ini dihitung dengan sistem harga per satuan (pcs/box).
+                                </div>
+                            <?php endif; ?>
+
+                            <div class="mb-4">
+                                <label class="form-label font-weight-bold">Jumlah (QTY)</label>
+                                <input type="number" min="1" name="qty" id="qty" class="form-control" value="1" style="max-width: 200px;" required oninput="hitungTotal()">
+                            </div>
+
+                            <hr class="my-4">
+
+                            <h5 class="fw-bold mb-3">2. Pilihan Desain & File Cetak</h5>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Opsi Desain</label>
+                                <select name="opsi_desain" id="opsi_desain" class="form-select" onchange="hitungTotal()">
+                                    <option value="upload_mandiri">Saya Sudah Punya Desain Siap Cetak (Gratis)</option>
+                                    <option value="custom_desain">Request Custom Desain dari Tim Kami (+ Rp 50.000)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Upload File Desain / Referensi (Opsional)</label>
+                                <input type="file" name="file_desain" class="form-control" accept="image/*,.pdf,.zip,.rar,.psd,.ai">
+                                <small class="text-muted">Format yang didukung: JPG, PNG, PDF, ZIP, PSD, AI (Maksimal 10MB)</small>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Catatan / Instruksi Cetak</label>
+                                <textarea name="catatan" class="form-control" rows="3" placeholder="Contoh: Tolong tambahkan mata ayam/lubang spanduk di tiap sudut..."></textarea>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <h5 class="fw-bold mb-3">3. Pengiriman</h5>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Metode Pengiriman</label>
+                                <select name="pengiriman" class="form-select" required>
+                                    <option value="ambil_sendiri">Ambil Sendiri di Toko Raster Grafik</option>
+                                    <option value="ojol">Kirim via Ojek Online (Ongkir COD ke Driver)</option>
+                                </select>
+                            </div>
+
+                            <!-- BOX RINCIAN HARGA -->
+                            <div class="card bg-light border-0 p-3 mb-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal Cetak:</span>
+                                    <span class="fw-bold" id="text_subtotal">Rp 0</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Biaya Custom Desain:</span>
+                                    <span class="fw-bold" id="text_biaya_desain">Rp 0</span>
+                                </div>
+                                <hr class="my-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold fs-5">Total Estimated Tagihan:</span>
+                                    <span class="fw-bold fs-3 text-merah" id="text_total_tagihan">Rp 0</span>
+                                </div>
+                            </div>
+
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="persetujuan" required>
+                                <label class="form-check-label small" for="persetujuan">
+                                    Saya menyetujui bahwa data spesifikasi ukuran dan file yang saya kirimkan sudah benar.
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primer w-100 py-3 rounded-pill fs-5">
+                                Buat Pesanan & Bayar Now
+                            </button>
+                        </form>
                     </div>
                 </div>
+
             </div>
-
-            <!-- KOLOM KANAN: RINGKASAN & PEMBAYARAN -->
-            <div class="col-lg-4">
-                <div class="card border-0 shadow-sm p-4 sticky-ringkasan">
-                    <h5 class="fw-bold mb-3 border-bottom pb-2">Ringkasan Biaya</h5>
-                    
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Harga Dasar:</span>
-                        <span>Rp 20.000/m²</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Biaya Cetak:</span>
-                        <span id="text-cetak" class="fw-bold">Rp 20.000</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Jasa Desain:</span>
-                        <span id="text-desain" class="fw-bold">Rp 0</span>
-                    </div>
-                    
-                    <hr>
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Metode Pengiriman</label>
-                        <select id="metode-pengiriman" name="pengiriman" class="form-select" required>
-                            <option value="ambil_di_toko">Ambil di Toko (Gratis)</option>
-                            <option value="ojek_online">Kirim via Ojol (Gosend/Grab)</option>
-                        </select>
-                    </div>
-
-                    <!-- Kotak Peringatan Ongkir COD (Sembunyi secara default) -->
-                    <div id="info-ongkir" class="alert alert-warning py-2 mb-3" style="display: none; font-size: 0.85rem;">
-                        ⚠️ <b>Ongkos Kirim Belum Termasuk!</b><br>Ongkir dibayarkan langsung kepada driver saat pesanan Anda tiba (COD).
-                    </div>
-
-                    <div class="d-flex justify-content-between mb-3 bg-light p-2 rounded">
-                        <h5 class="fw-bold mb-0">TOTAL TAGIHAN:</h5>
-                        <h5 class="fw-bold text-merah mb-0" id="text-grandtotal">Rp 20.000</h5>
-                    </div>
-
-                    <!-- Syarat & Ketentuan Resolusi File -->
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="syarat-file">
-                        <label class="form-check-label text-muted" style="font-size: 0.8rem;" for="syarat-file">
-                            Saya setuju bahwa saya bertanggung jawab penuh jika hasil cetak pecah akibat resolusi file saya yang rendah.
-                        </label>
-                    </div>
-
-                    <!-- Tombol berubah menjadi tipe Submit -->
-                    <button type="submit" id="btn-checkout" class="btn bg-merah w-100 fw-bold py-2" disabled>Buat Pesanan & Bayar</button>
-                </div>
-            </div>
-            
-        </form>
-        <!-- FORM SELESAI DI SINI -->
+        </div>
     </div>
 
-    <!-- LOGIKA JAVASCRIPT -->
+    <!-- SCRIPT HITUNG HARGA OTOMATIS -->
     <script>
-        // Harga Master Spanduk Flexi per meter persegi
-        const hargaPerMeter = 20000;
-
-        // Ambil elemen HTML untuk Kalkulator
-        const inputP = document.getElementById('input-panjang');
-        const inputL = document.getElementById('input-lebar');
-        const inputQty = document.getElementById('input-qty');
-        const opsiDesain = document.getElementById('opsi-desain');
-        
-        // Ambil elemen Text yang akan diubah angkanya
-        const textCetak = document.getElementById('text-cetak');
-        const textDesain = document.getElementById('text-desain');
-        const textGrandtotal = document.getElementById('text-grandtotal');
-
-        // Fungsi Format Rupiah
-        function formatRupiah(angka) {
-            return "Rp " + angka.toLocaleString('id-ID');
-        }
-
-        // FUNGSI UTAMA: Menghitung Total
         function hitungTotal() {
-            // 1. Ambil nilai dari input (jika kosong, anggap 0)
-            let p = parseFloat(inputP.value) || 0;
-            let l = parseFloat(inputL.value) || 0;
-            let qty = parseInt(inputQty.value) || 0;
+            let hargaDasar = parseFloat(document.getElementById('harga_dasar').value) || 0;
+            let tipeHarga = document.getElementById('tipe_harga').value;
             
-            // 2. Hitung Biaya Cetak (P x L x Qty x Harga)
-            let totalCetak = p * l * qty * hargaPerMeter;
-            
-            // 3. Ambil Biaya Desain (Membaca atribut data-harga karena value-nya sekarang berupa teks)
-            let opsiTerpilih = opsiDesain.options[opsiDesain.selectedIndex];
-            let biayaDesain = parseInt(opsiTerpilih.getAttribute('data-harga')) || 0;
-            
-            // 4. Hitung Grand Total
-            let grandTotal = totalCetak + biayaDesain;
+            let panjang = parseFloat(document.getElementById('panjang').value) || 1;
+            let lebar = parseFloat(document.getElementById('lebar').value) || 1;
+            let qty = parseInt(document.getElementById('qty').value) || 1;
+            let opsiDesain = document.getElementById('opsi_desain').value;
 
-            // 5. Tampilkan ke layar
-            textCetak.innerText = formatRupiah(totalCetak);
-            textDesain.innerText = formatRupiah(biayaDesain);
-            textGrandtotal.innerText = formatRupiah(grandTotal);
+            let subtotal = 0;
+            if (tipeHarga === 'meteran') {
+                subtotal = panjang * lebar * qty * hargaDasar;
+            } else {
+                subtotal = qty * hargaDasar;
+            }
+
+            let biayaDesain = (opsiDesain === 'custom_desain') ? 50000 : 0;
+            let totalTagihan = subtotal + biayaDesain;
+
+            // Format ke IDR Rupiah
+            document.getElementById('text_subtotal').innerText = 'Rp ' + subtotal.toLocaleString('id-ID');
+            document.getElementById('text_biaya_desain').innerText = 'Rp ' + biayaDesain.toLocaleString('id-ID');
+            document.getElementById('text_total_tagihan').innerText = 'Rp ' + totalTagihan.toLocaleString('id-ID');
         }
 
-        // PASANG LISTENER: Jalankan hitungTotal() setiap kali user mengetik/memilih
-        const triggers = document.querySelectorAll('.calc-trigger');
-        triggers.forEach(trigger => {
-            trigger.addEventListener('input', hitungTotal);
-            trigger.addEventListener('change', hitungTotal);
-        });
-
-        // -------------------------------------------------------------
-        // LOGIKA PENGIRIMAN & TOMBOL CHECKOUT
-        
-        const pengiriman = document.getElementById('metode-pengiriman');
-        const infoOngkir = document.getElementById('info-ongkir');
-        const checkboxSyarat = document.getElementById('syarat-file');
-        const btnCheckout = document.getElementById('btn-checkout');
-
-        // Tampilkan peringatan Ojol jika dipilih
-        pengiriman.addEventListener('change', function() {
-            if (this.value === 'ojek_online') {
-                infoOngkir.style.display = 'block';
-            } else {
-                infoOngkir.style.display = 'none';
-            }
-        });
-
-        // Kunci tombol checkout jika syarat belum dicentang
-        checkboxSyarat.addEventListener('change', function() {
-            if(this.checked) {
-                btnCheckout.removeAttribute('disabled');
-            } else {
-                btnCheckout.setAttribute('disabled', 'true');
-            }
-        });
+        // Jalankan perhitungan awal saat halaman pertama kali dibuka
+        window.onload = function() {
+            hitungTotal();
+        };
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
