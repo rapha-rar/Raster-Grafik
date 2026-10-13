@@ -1,4 +1,6 @@
 <?php
+session_start(); // Memulai sesi untuk mendeteksi status login pengguna
+
 // Memanggil file koneksi database
 require_once 'config/database.php';
 
@@ -92,11 +94,17 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
                 <ul class="navbar-nav ms-auto fw-semibold">
                     <li class="nav-item"><a class="nav-link text-primary" href="index.php">Beranda</a></li>
                     <li class="nav-item"><a class="nav-link" href="#katalog">Katalog Produk</a></li>
-                    <li class="nav-item"><a class="nav-link" href="dashboard_pelanggan.php">Pesanan Saya</a></li>
-                    <li class="nav-item"><a class="nav-link" href="admin_pesanan.php">Admin Panel</a></li>
                 </ul>
                 <div class="ms-lg-3 mt-2 mt-lg-0">
-                    <a href="dashboard_pelanggan.php" class="btn btn-sekunder px-4 rounded-pill">Dashboard Pelanggan</a>
+                    <?php if(isset($_SESSION['id_user'])): ?>
+                        <?php if($_SESSION['role'] == 'admin'): ?>
+                            <a href="admin_pesanan.php" class="btn btn-sekunder px-4 rounded-pill">Panel Admin</a>
+                        <?php else: ?>
+                            <a href="dashboard_pelanggan.php" class="btn btn-sekunder px-4 rounded-pill">Dashboard Pelanggan</a>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <a href="login.php" class="btn btn-sekunder px-4 rounded-pill">Login / Daftar</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -172,17 +180,16 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
                 <?php if (mysqli_num_rows($query_produk) > 0) : ?>
                     <?php while ($produk = mysqli_fetch_assoc($query_produk)) : ?>
                         <?php 
-                            // Cek apakah gambar menggunakan URL luar (http) atau file foto lokal di folder uploads
                             $img_src = (strpos($produk['gambar_katalog'], 'http') === 0) 
                                 ? $produk['gambar_katalog'] 
                                 : 'public/uploads/produk/' . $produk['gambar_katalog'];
                         ?>
                         <div class="col-md-6 col-lg-3">
                             <div class="card h-100 shadow-sm border-0">
-                                <img src="<?= $img_src; ?>" class="card-img-top" alt="<?= $produk['nama_produk']; ?>" style="height: 200px; object-fit: cover;">
+                                <img src="<?= $img_src; ?>" class="card-img-top" alt="<?= htmlspecialchars($produk['nama_produk']); ?>" style="height: 200px; object-fit: cover;">
                                 <div class="card-body text-center d-flex flex-column">
-                                    <h5 class="card-title fw-bold"><?= $produk['nama_produk']; ?></h5>
-                                    <p class="card-text text-muted small flex-grow-1"><?= $produk['deskripsi']; ?></p>
+                                    <h5 class="card-title fw-bold"><?= htmlspecialchars($produk['nama_produk']); ?></h5>
+                                    <p class="card-text text-muted small flex-grow-1"><?= htmlspecialchars($produk['deskripsi']); ?></p>
                                     
                                     <h6 class="text-merah fw-bold mb-3">
                                         Mulai Rp <?= number_format($produk['harga_dasar'], 0, ',', '.'); ?>
