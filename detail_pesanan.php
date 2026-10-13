@@ -215,7 +215,7 @@ $metode_pembayaran = !empty($pesanan['metode_pembayaran']) ? strtolower($pesanan
                                 <div class="mt-2">
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/6/68/BANK_BRI_logo.svg?utm_source=id.wikipedia.org&utm_campaign=index&utm_content=original" height="24" class="mb-2" alt="BRI">
                                     <h5 class="fw-bold mb-0 text-dark">0987 6543 2109 876</h5>
-                                    <span class="small text-muted">a.n PT Raster Grafik Indonesia</span>
+                                    <span class="small text-muted">a.n PT Raster Grafik Indonesia</span> 
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -278,3 +278,6 @@ $metode_pembayaran = !empty($pesanan['metode_pembayaran']) ? strtolower($pesanan
     </script>
 </body>
 </html>
+
+
+<!-- ? -->
