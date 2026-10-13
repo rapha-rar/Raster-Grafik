@@ -159,7 +159,8 @@ $user = mysqli_fetch_assoc($query_user);
                                 <label class="form-label fw-bold">Metode Pengiriman</label>
                                 <select name="pengiriman" class="form-select" required>
                                     <option value="ambil_sendiri">Ambil Sendiri di Toko Raster Grafik</option>
-                                    <option value="ojol">Kirim via Ojek Online (Ongkir COD ke Driver)</option>
+                                    <!-- Value di bawah ini diperbarui menjadi kirim_ojol -->
+                                    <option value="kirim_ojol">Kirim via Ojek Online (Ongkir COD ke Driver)</option>
                                 </select>
                             </div>
 

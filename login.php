@@ -7,7 +7,8 @@ if (isset($_SESSION['id_user'])) {
     if ($_SESSION['role'] == 'admin') {
         header("Location: admin_pesanan.php");
     } else {
-        header("Location: dashboard_pelanggan.php");
+        // PERUBAHAN: Pelanggan yang sudah login diarahkan ke index.php
+        header("Location: index.php"); 
     }
     exit();
 }
@@ -30,7 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($user['role'] == 'admin') {
                 header("Location: admin_pesanan.php");
             } else {
-                header("Location: dashboard_pelanggan.php");
+                // PERUBAHAN: Pelanggan yang baru berhasil login diarahkan ke index.php
+                header("Location: index.php"); 
             }
             exit();
         } else {
