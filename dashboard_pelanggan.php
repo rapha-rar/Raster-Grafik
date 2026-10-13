@@ -171,7 +171,7 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
                                     <th>Total Tagihan</th>
                                     <th>Pembayaran</th>
                                     <th>Status Pesanan</th>
-                                    <th class="text-end">Aksi</th>
+                                    <th class="text-center">Detail</th>
                                 </tr>
                             </thead>
                             <tbody>
