@@ -11,38 +11,29 @@ if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
 $id_admin = $_SESSION['id_user'];
 
 // --- LOGIKA AKSI ADMIN ---
-
-// 1. Verifikasi Pembayaran (Ubah ke Lunas)
 if (isset($_POST['aksi']) && $_POST['aksi'] == 'verifikasi_pembayaran') {
     $id_pesanan = intval($_POST['id_pesanan']);
-    
-    // Update status pembayaran & status cetak
     mysqli_query($koneksi, "UPDATE pesanan SET status_pembayaran = 'lunas', status_pesanan = 'proses_cetak' WHERE id_pesanan = $id_pesanan");
-    
-    // Catat ke riwayat status
     mysqli_query($koneksi, "INSERT INTO riwayat_status (id_pesanan, status, keterangan, diupdate_oleh) VALUES ($id_pesanan, 'Pembayaran Diverifikasi', 'Pembayaran telah dikonfirmasi LUNAS oleh Admin. Pesanan masuk antrean cetak.', $id_admin)");
-    
     echo "<script>alert('Pembayaran berhasil diverifikasi! Pesanan lanjut ke Proses Cetak.'); window.location.href='admin_pesanan.php';</script>";
 }
 
-// 2. Update Status Pengerjaan Cetak
 if (isset($_POST['aksi']) && $_POST['aksi'] == 'update_status_pesanan') {
     $id_pesanan = intval($_POST['id_pesanan']);
     $status_baru = $_POST['status_pesanan'];
-    
     mysqli_query($koneksi, "UPDATE pesanan SET status_pesanan = '$status_baru' WHERE id_pesanan = $id_pesanan");
-    
     $ket = "Status pesanan diperbarui menjadi: " . strtoupper(str_replace('_', ' ', $status_baru));
     mysqli_query($koneksi, "INSERT INTO riwayat_status (id_pesanan, status, keterangan, diupdate_oleh) VALUES ($id_pesanan, '$status_baru', '$ket', $id_admin)");
-    
     echo "<script>alert('Status pesanan berhasil diperbarui!'); window.location.href='admin_pesanan.php';</script>";
 }
 
-// Menarik semua data pesanan + nama pelanggan dari database
+// Menarik semua data pesanan + detail file desain
 $query_pesanan = mysqli_query($koneksi, "
-    SELECT pesanan.*, users.nama AS nama_pelanggan, users.no_whatsapp 
+    SELECT pesanan.*, users.nama AS nama_pelanggan, users.no_whatsapp, 
+           detail_pesanan.file_desain, detail_pesanan.catatan_desain, detail_pesanan.opsi_desain 
     FROM pesanan 
     JOIN users ON pesanan.id_user = users.id_user 
+    LEFT JOIN detail_pesanan ON pesanan.id_pesanan = detail_pesanan.id_pesanan
     ORDER BY pesanan.waktu_pesan DESC
 ");
 ?>
@@ -99,6 +90,8 @@ $query_pesanan = mysqli_query($koneksi, "
                             <th>Invoice</th>
                             <th>Pelanggan</th>
                             <th>Pengiriman</th>
+                            <!-- Kolom Baru untuk File Desain -->
+                            <th>Desain & Catatan</th>
                             <th>Total Tagihan</th>
                             <th>Bukti Bayar</th>
                             <th>Status Bayar</th>
@@ -116,6 +109,26 @@ $query_pesanan = mysqli_query($koneksi, "
                                         <small class="text-muted">WA: <?= htmlspecialchars($row['no_whatsapp']); ?></small>
                                     </td>
                                     <td><span class="badge bg-outline-dark border text-dark"><?= str_replace('_', ' ', $row['metode_pengiriman']); ?></span></td>
+                                    
+                                    <!-- FILE DESAIN & CATATAN -->
+                                    <td>
+                                        <?php if (!empty($row['file_desain'])): ?>
+                                            <a href="public/uploads/file_desain/<?= $row['file_desain']; ?>" target="_blank" download class="btn btn-sm btn-outline-primary mb-1">
+                                                ⬇️ Download File
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="badge bg-light text-dark border">
+                                                <?= ($row['opsi_desain'] == 'custom_desain') ? '🎨 Minta Custom' : 'Tidak ada file'; ?>
+                                            </span>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (!empty($row['catatan_desain'])): ?>
+                                            <div class="small text-muted mt-1" style="max-width: 150px; line-height: 1.2;">
+                                                <strong>Catatan:</strong> <?= htmlspecialchars($row['catatan_desain']); ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </td>
+
                                     <td class="fw-bold text-danger">Rp <?= number_format($row['total_tagihan'], 0, ',', '.'); ?></td>
                                     
                                     <!-- Bukti Transfer -->
@@ -177,7 +190,7 @@ $query_pesanan = mysqli_query($koneksi, "
                             <?php endwhile; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="8" class="text-center py-4 text-muted">Belum ada pesanan masuk.</td>
+                                <td colspan="9" class="text-center py-4 text-muted">Belum ada pesanan masuk.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>

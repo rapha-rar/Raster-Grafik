@@ -76,7 +76,7 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
                 <div class="card border-0 shadow-sm p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="fw-bold mb-0">Riwayat Pesanan Saya</h4>
-                        <a href="pesan.php" class="btn btn-primer btn-sm">+ Buat Pesanan Baru</a>
+                        <a href="index.php#katalog" class="btn btn-primer btn-sm">+ Buat Pesanan Baru</a>
                     </div>
 
                     <div class="table-responsive">
@@ -117,12 +117,12 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
                                                 </span>
                                             </td>
 
-                                            <!-- Tombol Aksi -->
+                                            <!-- Tombol Aksi (Diperbarui ke detail_pesanan.php) -->
                                             <td>
                                                 <?php if($row['status_pembayaran'] == 'belum_bayar'): ?>
-                                                    <a href="invoice.php?id=<?= $row['id_pesanan']; ?>" class="btn btn-sm btn-primary">Bayar Sekarang</a>
+                                                    <a href="detail_pesanan.php?id=<?= $row['id_pesanan']; ?>" class="btn btn-sm btn-primary">Bayar Sekarang</a>
                                                 <?php else: ?>
-                                                    <a href="invoice.php?id=<?= $row['id_pesanan']; ?>" class="btn btn-sm btn-outline-secondary">Lihat Invoice</a>
+                                                    <a href="detail_pesanan.php?id=<?= $row['id_pesanan']; ?>" class="btn btn-sm btn-outline-secondary">Lacak & Detail</a>
                                                 <?php endif; ?>
                                             </td>
                                         </tr>
@@ -141,5 +141,6 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

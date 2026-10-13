@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         mkdir($dir_upload, 0777, true);
     }
 
-    $nama_file_desain = NULL;
+    $nama_file_desain = "";
     if (isset($_FILES['file_desain']) && $_FILES['file_desain']['error'] == 0) {
         $ext = pathinfo($_FILES['file_desain']['name'], PATHINFO_EXTENSION);
         $nama_file_desain = "DESAIN_" . time() . "_" . rand(100, 999) . "." . $ext;
@@ -64,9 +64,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         $id_pesanan_baru = mysqli_insert_id($koneksi);
 
-        // B. Simpan ke tabel detail_pesanan
-        $sql_detail = "INSERT INTO detail_pesanan (id_pesanan, id_produk, panjang, lebar, jumlah, opsi_desain, biaya_desain_custom, catatan_desain, subtotal) 
-                       VALUES ($id_pesanan_baru, $id_produk, $panjang, $lebar, $qty, '$opsi_desain', $biaya_desain, '$catatan', $subtotal)";
+        // B. Simpan ke tabel detail_pesanan (PERUBAHAN: Menambahkan file_desain)
+        $sql_detail = "INSERT INTO detail_pesanan (id_pesanan, id_produk, panjang, lebar, jumlah, opsi_desain, biaya_desain_custom, catatan_desain, file_desain, subtotal) 
+                       VALUES ($id_pesanan_baru, $id_produk, $panjang, $lebar, $qty, '$opsi_desain', $biaya_desain, '$catatan', '$nama_file_desain', $subtotal)";
         mysqli_query($koneksi, $sql_detail);
 
         // C. Simpan ke tabel riwayat_status
