@@ -278,6 +278,3 @@ $metode_pembayaran = !empty($pesanan['metode_pembayaran']) ? strtolower($pesanan
     </script>
 </body>
 </html>
-
-
-<!-- ? -->
