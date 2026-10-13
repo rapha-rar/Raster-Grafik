@@ -1,10 +1,6 @@
 <?php
-session_start(); // Memulai sesi untuk mendeteksi status login pengguna
-
-// Memanggil file koneksi database
+session_start();
 require_once 'config/database.php';
-
-// Menarik seluruh data produk dari database
 $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk ASC");
 ?>
 
@@ -15,155 +11,127 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raster Grafik - Digital Printing Cepat & Mudah</title>
     
-    <!-- CSS Bootstrap 5 -->
+    <!-- CSS & Fonts -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
-    <!-- CSS Kustom Tema Merah-Biru Raster Grafik -->
     <style>
         :root {
             --biru-rg: #0088cc;
             --merah-rg: #cc0000;
+            --bg-light: #f4f7f6;
         }
-        
-        .navbar-brand {
-            font-weight: 800;
-            font-size: 1.5rem;
-        }
+        body { font-family: 'Poppins', sans-serif; color: #333; }
         .text-biru { color: var(--biru-rg); }
         .text-merah { color: var(--merah-rg); }
         
-        .btn-primer {
-            background-color: var(--merah-rg);
-            color: white;
-            font-weight: bold;
-        }
-        .btn-primer:hover {
-            background-color: #aa0000;
-            color: white;
-        }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px; }
         
-        .btn-sekunder {
-            background-color: var(--biru-rg);
-            color: white;
-            font-weight: bold;
-        }
-        .btn-sekunder:hover {
-            background-color: #006699;
-            color: white;
-        }
-
-        .hero-section {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 80px 0;
-            border-bottom: 5px solid var(--merah-rg);
-        }
+        .btn-primer { background-color: var(--merah-rg); color: white; font-weight: 500; transition: all 0.3s ease; }
+        .btn-primer:hover { background-color: #aa0000; color: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(204,0,0,0.2); }
         
-        .hero-border-bottom {
-            height: 5px;
-            background-color: var(--biru-rg);
-        }
+        .btn-sekunder { background-color: var(--biru-rg); color: white; font-weight: 500; transition: all 0.3s ease; }
+        .btn-sekunder:hover { background-color: #006699; color: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,136,204,0.2); }
 
-        .fitur-box {
-            text-align: center;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            transition: 0.3s;
-        }
-        .fitur-box:hover {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            border-color: var(--biru-rg);
-        }
+        .hero-section { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 80px 0; border-bottom: 5px solid var(--merah-rg); }
+        .hero-border-bottom { height: 5px; background-color: var(--biru-rg); }
+
+        .fitur-box { text-align: center; padding: 30px 20px; border: none; border-radius: 16px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: 0.3s; height: 100%; }
+        .fitur-box:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        
+        .card-custom { border: none; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); transition: transform 0.3s ease, box-shadow 0.3s ease; overflow: hidden; }
+        .card-custom:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
     </style>
 </head>
-<body>
+<body class="bg-light">
 
-    <!-- 1. HEADER / NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top py-3">
         <div class="container">
             <a class="navbar-brand" href="index.php">
                 <span class="text-biru">RASTER</span><span class="text-merah">GRAFIK</span>
             </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto fw-semibold">
+                <ul class="navbar-nav ms-auto fw-medium">
                     <li class="nav-item"><a class="nav-link text-primary" href="index.php">Beranda</a></li>
                     <li class="nav-item"><a class="nav-link" href="#katalog">Katalog Produk</a></li>
                 </ul>
-                <div class="ms-lg-3 mt-2 mt-lg-0">
+                <div class="ms-lg-4 mt-3 mt-lg-0">
                     <?php if(isset($_SESSION['id_user'])): ?>
                         <?php if($_SESSION['role'] == 'admin'): ?>
-                            <a href="admin_pesanan.php" class="btn btn-sekunder px-4 rounded-pill">Panel Admin</a>
+                            <a href="admin_pesanan.php" class="btn btn-sekunder px-4 rounded-pill"><i class="bi bi-shield-lock me-1"></i> Panel Admin</a>
                         <?php else: ?>
-                            <a href="dashboard_pelanggan.php" class="btn btn-sekunder px-4 rounded-pill">Dashboard Pelanggan</a>
+                            <a href="dashboard_pelanggan.php" class="btn btn-sekunder px-4 rounded-pill"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
                         <?php endif; ?>
                     <?php else: ?>
-                        <a href="login.php" class="btn btn-sekunder px-4 rounded-pill">Login / Daftar</a>
+                        <a href="login.php" class="btn btn-sekunder px-4 rounded-pill"><i class="bi bi-box-arrow-in-right me-1"></i> Login / Daftar</a>
                     <?php endif; ?>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- 2. HERO BANNER -->
+    <!-- HERO -->
     <section class="hero-section text-center text-lg-start">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-6 mb-4 mb-lg-0">
-                    <h1 class="display-4 fw-bold mb-3">
+                <div class="col-lg-6 mb-5 mb-lg-0 pe-lg-5">
+                    <h1 class="display-4 fw-bold mb-3" style="letter-spacing: -1px;">
                         CETAK <span class="text-merah">CEPAT</span>, MUDAH & <span class="text-biru">BERKUALITAS!</span>
                     </h1>
-                    <p class="lead mb-4">
+                    <p class="lead mb-4 text-muted">
                         Solusi percetakan online Anda di Raster Grafik. Dari custom desain, pilih template, hingga siap kirim ke depan pintu rumah Anda (Ongkir COD)!
                     </p>
-                    <div>
-                        <a href="#katalog" class="btn btn-primer btn-lg px-4 me-2 rounded-pill">Pesan Sekarang</a>
+                    <div class="d-flex gap-2 justify-content-center justify-content-lg-start">
+                        <a href="#katalog" class="btn btn-primer btn-lg px-4 rounded-pill"><i class="bi bi-cart me-1"></i> Pesan Sekarang</a>
                         <a href="#katalog" class="btn btn-outline-dark btn-lg px-4 rounded-pill">Lihat Katalog</a>
                     </div>
                 </div>
                 <div class="col-lg-6 text-center">
-                    <img src="https://via.placeholder.com/600x400?text=Raster+Grafik+Banner" alt="Banner Percetakan" class="img-fluid rounded shadow-lg">
+                    <img src="https://via.placeholder.com/600x400?text=Raster+Grafik+Banner" alt="Banner Percetakan" class="img-fluid rounded-4 shadow-lg">
                 </div>
             </div>
         </div>
     </section>
     <div class="hero-border-bottom"></div>
 
-    <!-- 3. BARIS FITUR UNGGULAN -->
+    <!-- FITUR -->
     <section class="py-5 bg-white">
-        <div class="container">
-            <h3 class="text-center fw-bold mb-4">Layanan Unggulan Kami</h3>
-            <div class="row mt-4">
-                <div class="col-md-3">
+        <div class="container my-4">
+            <div class="text-center mb-5">
+                <h6 class="text-merah fw-bold text-uppercase tracking-wide">Mengapa Memilih Kami?</h6>
+                <h3 class="fw-bold">Layanan Unggulan Kami</h3>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
                     <div class="fitur-box">
-                        <h4 class="text-biru">🎨</h4>
-                        <h5 class="fw-bold mt-2">3 Opsi Desain</h5>
+                        <i class="bi bi-palette text-biru display-4 mb-3 d-block"></i>
+                        <h5 class="fw-bold">3 Opsi Desain</h5>
                         <p class="small text-muted mb-0">Upload Mandiri, Pilih Template, atau Request Custom Desain.</p>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6 col-lg-3">
                     <div class="fitur-box">
-                        <h4 class="text-merah">🧮</h4>
-                        <h5 class="fw-bold mt-2">Kalkulator Harga</h5>
+                        <i class="bi bi-calculator text-merah display-4 mb-3 d-block"></i>
+                        <h5 class="fw-bold">Kalkulator Harga</h5>
                         <p class="small text-muted mb-0">Hitung total tagihan otomatis sesuai ukuran cetakan Anda.</p>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6 col-lg-3">
                     <div class="fitur-box">
-                        <h4 class="text-biru">🛵</h4>
-                        <h5 class="fw-bold mt-2">Kirim via Ojol</h5>
+                        <i class="bi bi-motorcycle text-biru display-4 mb-3 d-block"></i>
+                        <h5 class="fw-bold">Kirim via Ojol</h5>
                         <p class="small text-muted mb-0">Pesanan dikirim cepat, bayar ongkir langsung ke driver (COD).</p>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6 col-lg-3">
                     <div class="fitur-box">
-                        <h4 class="text-merah">🎯</h4>
-                        <h5 class="fw-bold mt-2">Live Tracking</h5>
+                        <i class="bi bi-geo-alt text-merah display-4 mb-3 d-block"></i>
+                        <h5 class="fw-bold">Live Tracking</h5>
                         <p class="small text-muted mb-0">Pantau progres pesanan mulai dari desain hingga proses cetak.</p>
                     </div>
                 </div>
@@ -171,33 +139,32 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
         </div>
     </section>
 
-    <!-- 4. KATALOG PRODUK DINAMIS -->
-    <section id="katalog" class="py-5 bg-light">
-        <div class="container">
-            <h2 class="text-center fw-bold mb-5">Pilihan Produk Terlaris</h2>
+    <!-- KATALOG -->
+    <section id="katalog" class="py-5" style="background-color: var(--bg-light);">
+        <div class="container my-4">
+            <div class="text-center mb-5">
+                <h6 class="text-biru fw-bold text-uppercase tracking-wide">Katalog Kami</h6>
+                <h2 class="fw-bold">Pilihan Produk Terlaris</h2>
+            </div>
             <div class="row g-4">
-                
                 <?php if (mysqli_num_rows($query_produk) > 0) : ?>
                     <?php while ($produk = mysqli_fetch_assoc($query_produk)) : ?>
                         <?php 
                             $img_src = (strpos($produk['gambar_katalog'], 'http') === 0) 
-                                ? $produk['gambar_katalog'] 
-                                : 'public/uploads/produk/' . $produk['gambar_katalog'];
+                                ? $produk['gambar_katalog'] : 'public/uploads/produk/' . $produk['gambar_katalog'];
                         ?>
                         <div class="col-md-6 col-lg-3">
-                            <div class="card h-100 shadow-sm border-0">
+                            <div class="card card-custom h-100">
                                 <img src="<?= $img_src; ?>" class="card-img-top" alt="<?= htmlspecialchars($produk['nama_produk']); ?>" style="height: 200px; object-fit: cover;">
-                                <div class="card-body text-center d-flex flex-column">
-                                    <h5 class="card-title fw-bold"><?= htmlspecialchars($produk['nama_produk']); ?></h5>
-                                    <p class="card-text text-muted small flex-grow-1"><?= htmlspecialchars($produk['deskripsi']); ?></p>
-                                    
-                                    <h6 class="text-merah fw-bold mb-3">
-                                        Mulai Rp <?= number_format($produk['harga_dasar'], 0, ',', '.'); ?>
-                                        <?= ($produk['tipe_harga'] == 'meteran') ? '/ m²' : '/ pcs'; ?>
+                                <div class="card-body text-center d-flex flex-column p-4">
+                                    <h5 class="card-title fw-bold mb-2"><?= htmlspecialchars($produk['nama_produk']); ?></h5>
+                                    <p class="card-text text-muted small flex-grow-1 mb-3"><?= htmlspecialchars($produk['deskripsi']); ?></p>
+                                    <h6 class="text-merah fw-bold fs-5 mb-4">
+                                        Rp <?= number_format($produk['harga_dasar'], 0, ',', '.'); ?>
+                                        <span class="fs-6 text-muted fw-normal"><?= ($produk['tipe_harga'] == 'meteran') ? '/ m²' : '/ pcs'; ?></span>
                                     </h6>
-                                    
-                                    <a href="pesan.php?id_produk=<?= $produk['id_produk']; ?>" class="btn btn-sekunder w-100 rounded-pill">
-                                        Pilih Produk
+                                    <a href="pesan.php?id_produk=<?= $produk['id_produk']; ?>" class="btn btn-sekunder w-100 rounded-pill py-2">
+                                        Pilih Produk <i class="bi bi-arrow-right ms-1"></i>
                                     </a>
                                 </div>
                             </div>
@@ -205,39 +172,19 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
                     <?php endwhile; ?>
                 <?php else : ?>
                     <div class="col-12 text-center text-muted">
+                        <i class="bi bi-inbox display-1 mb-3 d-block text-secondary"></i>
                         <p>Belum ada produk yang tersedia saat ini.</p>
                     </div>
                 <?php endif; ?>
-
             </div>
         </div>
     </section>
 
-    <!-- 5. FOOTER -->
     <footer class="bg-dark text-white py-4 mt-auto">
-        <div class="container text-center text-md-start">
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <h5 class="fw-bold"><span class="text-biru">RASTER</span><span class="text-merah">GRAFIK</span></h5>
-                    <p class="small text-secondary">Solusi cetak cepat dan berkualitas untuk kebutuhan promosi dan bisnis Anda.</p>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <h5 class="fw-bold">Alamat Toko</h5>
-                    <p class="small text-secondary mb-0">Jl. Contoh Percetakan No. 123</p>
-                    <p class="small text-secondary">Buka: Senin - Sabtu (08:00 - 17:00)</p>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <h5 class="fw-bold">Bantuan</h5>
-                    <p class="small text-secondary mb-0">WhatsApp: 0812-3456-7890</p>
-                    <p class="small text-secondary">Email: halo@rastergrafik.id</p>
-                </div>
-            </div>
-            <hr class="border-secondary">
-            <p class="text-center small text-secondary mb-0">&copy; 2026 Raster Grafik. All Rights Reserved.</p>
+        <div class="container text-center">
+            <p class="small text-secondary mb-0">&copy; 2026 Raster Grafik. All Rights Reserved.</p>
         </div>
     </footer>
-
-    <!-- Script Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
