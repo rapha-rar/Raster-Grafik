@@ -5,7 +5,7 @@ if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'pelanggan') { header(
 
 $id_user = $_SESSION['id_user'];
 $id_pesanan = isset($_GET['id']) ? intval($_GET['id']) : 0;
-if ($id_pesanan == 0) { echo "<script>window.location.href='dashboard_pelanggan.php';</script>"; exit(); }
+if ($id_pesanan == 0) { header("Location: dashboard_pelanggan.php"); exit(); }
 
 if (isset($_POST['upload_bukti'])) {
     $dir_upload = "public/uploads/bukti_transfer/";
@@ -16,13 +16,36 @@ if (isset($_POST['upload_bukti'])) {
         move_uploaded_file($_FILES['bukti_bayar']['tmp_name'], $dir_upload . $nama_bukti);
         mysqli_query($koneksi, "UPDATE pesanan SET bukti_bayar = '$nama_bukti', status_pembayaran = 'menunggu_verifikasi' WHERE id_pesanan = $id_pesanan");
         mysqli_query($koneksi, "INSERT INTO riwayat_status (id_pesanan, status, keterangan, diupdate_oleh) VALUES ($id_pesanan, 'Bukti Bayar Diunggah', 'Pelanggan telah mengunggah bukti pembayaran. Menunggu verifikasi dari Admin.', $id_user)");
-        echo "<script>alert('Bukti berhasil diunggah!'); window.location.href='detail_pesanan.php?id=$id_pesanan';</script>";
+        
+        echo "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+            <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+            <style>body { font-family: 'Poppins', sans-serif; }</style>
+        </head>
+        <body style='background-color:#f4f7f6;'>
+            <script>
+                Swal.fire({
+                    title: 'Bukti Pembayaran Terunggah!',
+                    text: 'Mohon tunggu verifikasi pembayaran dari tim Admin kami.',
+                    icon: 'success',
+                    confirmButtonColor: '#0088cc',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.href = 'detail_pesanan.php?id=$id_pesanan';
+                });
+            </script>
+        </body>
+        </html>";
+        exit();
     }
 }
 
 $query_pesanan = "SELECT p.*, d.*, pr.nama_produk, pr.tipe_harga, pr.gambar_katalog FROM pesanan p JOIN detail_pesanan d ON p.id_pesanan = d.id_pesanan JOIN produk pr ON d.id_produk = pr.id_produk WHERE p.id_pesanan = $id_pesanan AND p.id_user = $id_user";
 $result = mysqli_query($koneksi, $query_pesanan);
-if (mysqli_num_rows($result) == 0) { echo "<script>window.location.href='dashboard_pelanggan.php';</script>"; exit(); }
+if (mysqli_num_rows($result) == 0) { header("Location: dashboard_pelanggan.php"); exit(); }
 $pesanan = mysqli_fetch_assoc($result);
 
 $query_riwayat = mysqli_query($koneksi, "SELECT * FROM riwayat_status WHERE id_pesanan = $id_pesanan ORDER BY waktu_update ASC");
@@ -38,18 +61,17 @@ $query_riwayat = mysqli_query($koneksi, "SELECT * FROM riwayat_status WHERE id_p
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
         :root { --biru-rg: #0088cc; --merah-rg: #cc0000; --bg-light: #f4f7f6; }
         body { font-family: 'Poppins', sans-serif; background-color: var(--bg-light); color: #333; }
         .text-merah { color: var(--merah-rg); }
         .text-biru { color: var(--biru-rg); }
-        
         .card-custom { border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
         .btn-primer { background-color: var(--merah-rg); color: white; font-weight: 500; }
         .btn-primer:hover { background-color: #aa0000; color: white; }
         
-        /* Modern Timeline */
         .timeline { border-left: 2px dashed #dee2e6; padding-left: 20px; margin-left: 15px; position: relative; }
         .timeline-item { margin-bottom: 25px; position: relative; }
         .timeline-item::before { content: ''; position: absolute; left: -27px; top: 5px; width: 14px; height: 14px; border-radius: 50%; background-color: var(--biru-rg); border: 2px solid white; box-shadow: 0 0 0 3px rgba(0,136,204,0.2); }
@@ -138,7 +160,6 @@ $query_riwayat = mysqli_query($koneksi, "SELECT * FROM riwayat_status WHERE id_p
 
             <!-- KOLOM KANAN -->
             <div class="col-lg-5">
-                
                 <?php if ($pesanan['status_pembayaran'] == 'belum_bayar'): ?>
                     <div class="card card-custom border border-danger border-opacity-25 p-4 mb-4" style="background-color: #fff9f9;">
                         <h5 class="fw-bold text-danger mb-3"><i class="bi bi-wallet2 me-2"></i> Selesaikan Pembayaran</h5>

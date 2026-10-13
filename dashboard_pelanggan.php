@@ -17,7 +17,29 @@ if (isset($_POST['update_profil'])) {
     $query_update = "UPDATE users SET nama = '$nama_baru', no_whatsapp = '$no_wa_baru', alamat_lengkap = '$alamat_baru' WHERE id_user = $id_user";
     if (mysqli_query($koneksi, $query_update)) {
         $_SESSION['nama'] = $nama_baru;
-        echo "<script>alert('Profil berhasil diperbarui!'); window.location.href='dashboard_pelanggan.php';</script>";
+        echo "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+            <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+            <style>body { font-family: 'Poppins', sans-serif; }</style>
+        </head>
+        <body style='background-color:#f4f7f6;'>
+            <script>
+                Swal.fire({
+                    title: 'Profil Diperbarui!',
+                    text: 'Data profil Anda telah berhasil disimpan.',
+                    icon: 'success',
+                    confirmButtonColor: '#0088cc',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.href = 'dashboard_pelanggan.php';
+                });
+            </script>
+        </body>
+        </html>";
+        exit();
     }
 }
 
@@ -33,79 +55,30 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Pelanggan - Raster Grafik</title>
     
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
-        :root {
-            --biru-rg: #0088cc;
-            --merah-rg: #cc0000;
-            --bg-light: #f4f7f6;
-        }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-light);
-            color: #333;
-        }
+        :root { --biru-rg: #0088cc; --merah-rg: #cc0000; --bg-light: #f4f7f6; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-light); color: #333; }
         .text-merah { color: var(--merah-rg); }
         .text-biru { color: var(--biru-rg); }
         
-        /* Modern Cards */
-        .card-custom {
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card-custom:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
+        .card-custom { border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card-custom:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
         
-        /* Modern Buttons */
-        .btn-primer {
-            background-color: var(--merah-rg);
-            color: white;
-            font-weight: 500;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        .btn-primer:hover {
-            background-color: #aa0000;
-            color: white;
-            transform: translateY(-2px);
-        }
+        .btn-primer { background-color: var(--merah-rg); color: white; font-weight: 500; border-radius: 8px; transition: all 0.3s ease; }
+        .btn-primer:hover { background-color: #aa0000; color: white; transform: translateY(-2px); }
         
-        /* Table Styling */
-        .table-custom th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-            color: #555;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid #eee;
-        }
-        .table-custom td {
-            vertical-align: middle;
-            font-size: 0.95rem;
-        }
-        
-        /* Badges */
-        .badge-custom {
-            padding: 0.5em 0.8em;
-            font-weight: 500;
-            border-radius: 30px;
-        }
+        .table-custom th { background-color: #f8f9fa; font-weight: 600; color: #555; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; border-bottom: 2px solid #eee; }
+        .table-custom td { vertical-align: middle; font-size: 0.95rem; }
+        .badge-custom { padding: 0.5em 0.8em; font-weight: 500; border-radius: 30px; }
     </style>
 </head>
 <body>
 
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-white shadow-sm mb-5 py-3">
         <div class="container">
             <a class="navbar-brand fw-bold fs-4" href="index.php">
@@ -120,11 +93,8 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
         </div>
     </nav>
 
-    <!-- Konten Dashboard -->
     <div class="container pb-5">
         <div class="row g-4">
-            
-            <!-- Sidebar / Profil Singkat -->
             <div class="col-lg-3">
                 <div class="card card-custom p-3">
                     <div class="card-body text-center">
@@ -152,7 +122,6 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
                 </div>
             </div>
 
-            <!-- Tabel Riwayat Pesanan -->
             <div class="col-lg-9">
                 <div class="card card-custom p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
@@ -182,7 +151,6 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
                                             <td class="text-muted small"><?= date('d M Y, H:i', strtotime($row['waktu_pesan'])); ?></td>
                                             <td class="fw-bold text-merah">Rp <?= number_format($row['total_tagihan'], 0, ',', '.'); ?></td>
                                             
-                                            <!-- Badge Status Pembayaran -->
                                             <td>
                                                 <?php if($row['status_pembayaran'] == 'belum_bayar'): ?>
                                                     <span class="badge bg-danger bg-opacity-10 text-danger badge-custom"><i class="bi bi-exclamation-circle me-1"></i> Belum Bayar</span>
@@ -193,14 +161,12 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
                                                 <?php endif; ?>
                                             </td>
 
-                                            <!-- Badge Status Pesanan -->
                                             <td>
                                                 <span class="badge bg-secondary badge-custom text-capitalize">
                                                     <?= str_replace('_', ' ', $row['status_pesanan']); ?>
                                                 </span>
                                             </td>
 
-                                            <!-- Tombol Aksi -->
                                             <td class="text-end">
                                                 <?php if($row['status_pembayaran'] == 'belum_bayar'): ?>
                                                     <a href="detail_pesanan.php?id=<?= $row['id_pesanan']; ?>" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm">
@@ -227,7 +193,6 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -279,7 +244,6 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

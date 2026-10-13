@@ -75,7 +75,7 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
         </div>
     </nav>
 
-    <!-- HERO -->
+    <!-- HERO BANNER -->
     <section class="hero-section text-center text-lg-start">
         <div class="container">
             <div class="row align-items-center">
@@ -99,47 +99,47 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
     </section>
     <div class="hero-border-bottom"></div>
 
-    <!-- FITUR -->
+    <!-- MENGAPA MEMILIH KAMI (KEUNGGULAN PERCETAKAN) -->
     <section class="py-5 bg-white">
         <div class="container my-4">
             <div class="text-center mb-5">
                 <h6 class="text-merah fw-bold text-uppercase tracking-wide">Mengapa Memilih Kami?</h6>
-                <h3 class="fw-bold">Layanan Unggulan Kami</h3>
+                <h3 class="fw-bold">Keunggulan Percetakan Raster Grafik</h3>
             </div>
             <div class="row g-4">
                 <div class="col-md-6 col-lg-3">
                     <div class="fitur-box">
-                        <i class="bi bi-palette text-biru display-4 mb-3 d-block"></i>
-                        <h5 class="fw-bold">3 Opsi Desain</h5>
-                        <p class="small text-muted mb-0">Upload Mandiri, Pilih Template, atau Request Custom Desain.</p>
+                        <i class="bi bi-printer text-biru display-4 mb-3 d-block"></i>
+                        <h5 class="fw-bold">Hasil Cetak Tajam</h5>
+                        <p class="small text-muted mb-0">Menggunakan mesin percetakan modern dengan hasil cetak warna tajam, jernih, dan presisi tinggi.</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="fitur-box">
-                        <i class="bi bi-calculator text-merah display-4 mb-3 d-block"></i>
-                        <h5 class="fw-bold">Kalkulator Harga</h5>
-                        <p class="small text-muted mb-0">Hitung total tagihan otomatis sesuai ukuran cetakan Anda.</p>
+                        <i class="bi bi-clock-history text-merah display-4 mb-3 d-block"></i>
+                        <h5 class="fw-bold">Pengerjaan Cepat</h5>
+                        <p class="small text-muted mb-0">Proses pengerjaan terstruktur, rapi, cepat, dan tepat waktu sesuai kebutuhan Anda.</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="fitur-box">
-                        <i class="bi bi-motorcycle text-biru display-4 mb-3 d-block"></i>
-                        <h5 class="fw-bold">Kirim via Ojol</h5>
-                        <p class="small text-muted mb-0">Pesanan dikirim cepat, bayar ongkir langsung ke driver (COD).</p>
+                        <i class="bi bi-tags text-biru display-4 mb-3 d-block"></i>
+                        <h5 class="fw-bold">Harga Bersaing</h5>
+                        <p class="small text-muted mb-0">Harga terjangkau dengan transparansi perhitungan biaya yang jelas tanpa biaya tersembunyi.</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="fitur-box">
-                        <i class="bi bi-geo-alt text-merah display-4 mb-3 d-block"></i>
-                        <h5 class="fw-bold">Live Tracking</h5>
-                        <p class="small text-muted mb-0">Pantau progres pesanan mulai dari desain hingga proses cetak.</p>
+                        <i class="bi bi-palette text-merah display-4 mb-3 d-block"></i>
+                        <h5 class="fw-bold">Layanan Custom Desain</h5>
+                        <p class="small text-muted mb-0">Tim desainer siap membantu proses pembuatan dan penyesuaian desain sesuai keinginan Anda.</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- KATALOG -->
+    <!-- KATALOG PRODUK -->
     <section id="katalog" class="py-5" style="background-color: var(--bg-light);">
         <div class="container my-4">
             <div class="text-center mb-5">
@@ -180,11 +180,13 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
         </div>
     </section>
 
+    <!-- FOOTER -->
     <footer class="bg-dark text-white py-4 mt-auto">
         <div class="container text-center">
             <p class="small text-secondary mb-0">&copy; 2026 Raster Grafik. All Rights Reserved.</p>
         </div>
     </footer>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

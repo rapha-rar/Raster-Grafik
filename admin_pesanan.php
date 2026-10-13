@@ -13,7 +13,10 @@ $id_admin = $_SESSION['id_user'];
 if (isset($_POST['aksi']) && $_POST['aksi'] == 'verifikasi_pembayaran') {
     $id_pesanan = intval($_POST['id_pesanan']);
     
+<<<<<<< HEAD
     // Cek apakah pesanan ini memilih opsi request custom desain
+=======
+>>>>>>> e324c6d (Ijin Kompe)
     $q_check = mysqli_query($koneksi, "SELECT opsi_desain FROM detail_pesanan WHERE id_pesanan = $id_pesanan");
     $d_check = mysqli_fetch_assoc($q_check);
     
@@ -28,7 +31,34 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'verifikasi_pembayaran') {
     mysqli_query($koneksi, "UPDATE pesanan SET status_pembayaran = 'lunas', status_pesanan = '$status_awal' WHERE id_pesanan = $id_pesanan");
     mysqli_query($koneksi, "INSERT INTO riwayat_status (id_pesanan, status, keterangan, diupdate_oleh) VALUES ($id_pesanan, '$status_awal', '$ket_awal', $id_admin)");
     
+<<<<<<< HEAD
     echo "<script>alert('Pembayaran berhasil diverifikasi! Status otomatis diset ke: " . strtoupper(str_replace('_', ' ', $status_awal)) . "'); window.location.href='admin_pesanan.php';</script>";
+=======
+    $status_text = strtoupper(str_replace('_', ' ', $status_awal));
+    echo "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+        <style>body { font-family: 'Poppins', sans-serif; }</style>
+    </head>
+    <body style='background-color:#f4f7f6;'>
+        <script>
+            Swal.fire({
+                title: 'Pembayaran Diverifikasi!',
+                text: 'Status otomatis diset ke: $status_text',
+                icon: 'success',
+                confirmButtonColor: '#0088cc',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = 'admin_pesanan.php';
+            });
+        </script>
+    </body>
+    </html>";
+    exit();
+>>>>>>> e324c6d (Ijin Kompe)
 }
 
 if (isset($_POST['aksi']) && $_POST['aksi'] == 'update_status_pesanan') {
@@ -37,7 +67,30 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'update_status_pesanan') {
     mysqli_query($koneksi, "UPDATE pesanan SET status_pesanan = '$status_baru' WHERE id_pesanan = $id_pesanan");
     $ket = "Status pesanan diperbarui menjadi: " . strtoupper(str_replace('_', ' ', $status_baru));
     mysqli_query($koneksi, "INSERT INTO riwayat_status (id_pesanan, status, keterangan, diupdate_oleh) VALUES ($id_pesanan, '$status_baru', '$ket', $id_admin)");
-    echo "<script>alert('Status pesanan berhasil diperbarui!'); window.location.href='admin_pesanan.php';</script>";
+    
+    echo "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+        <style>body { font-family: 'Poppins', sans-serif; }</style>
+    </head>
+    <body style='background-color:#f4f7f6;'>
+        <script>
+            Swal.fire({
+                title: 'Status Diperbarui!',
+                text: 'Status pesanan berhasil diubah.',
+                icon: 'success',
+                confirmButtonColor: '#0088cc',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = 'admin_pesanan.php';
+            });
+        </script>
+    </body>
+    </html>";
+    exit();
 }
 
 $query_pesanan = mysqli_query($koneksi, "
@@ -57,10 +110,17 @@ $query_pesanan = mysqli_query($koneksi, "
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin - Raster Grafik</title>
     
+<<<<<<< HEAD
     <!-- CSS & Fonts -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+=======
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+>>>>>>> e324c6d (Ijin Kompe)
     
     <style>
         :root { --biru-rg: #0088cc; --merah-rg: #cc0000; --bg-light: #f4f7f6; }
@@ -81,7 +141,10 @@ $query_pesanan = mysqli_query($koneksi, "
 </head>
 <body>
 
+<<<<<<< HEAD
     <!-- Top Navigation Admin -->
+=======
+>>>>>>> e324c6d (Ijin Kompe)
     <nav class="navbar navbar-expand-lg navbar-dark admin-navbar shadow-sm mb-4 py-3">
         <div class="container-fluid px-4">
             <a class="navbar-brand fw-bold fs-4" href="#">
@@ -94,7 +157,10 @@ $query_pesanan = mysqli_query($koneksi, "
             <div class="collapse navbar-collapse" id="adminNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-4 fw-medium">
                     <li class="nav-item">
+<<<<<<< HEAD
                         <!-- UBAH WARNA DARI KUNING KE BIRU SAMA SEPERTI LOGO -->
+=======
+>>>>>>> e324c6d (Ijin Kompe)
                         <a class="nav-link active fw-bold" style="color: var(--biru-rg) !important;" href="admin_pesanan.php"><i class="bi bi-cart-check me-1"></i> Kelola Pesanan</a>
                     </li>
                     <li class="nav-item">
@@ -235,10 +301,17 @@ $query_pesanan = mysqli_query($koneksi, "
                                     <td>
                                         <div class="d-flex flex-column gap-2 align-items-center">
                                             <?php if ($row['status_pembayaran'] == 'menunggu_verifikasi'): ?>
+<<<<<<< HEAD
                                                 <form action="" method="POST" onsubmit="return confirm('Konfirmasi bahwa uang transfer sudah masuk?');" class="w-100">
                                                     <input type="hidden" name="aksi" value="verifikasi_pembayaran">
                                                     <input type="hidden" name="id_pesanan" value="<?= $row['id_pesanan']; ?>">
                                                     <button type="submit" class="btn btn-sm btn-success fw-medium rounded-pill w-100 shadow-sm" style="font-size:0.8rem;">
+=======
+                                                <form action="" method="POST" class="w-100 form-acc-bayar">
+                                                    <input type="hidden" name="aksi" value="verifikasi_pembayaran">
+                                                    <input type="hidden" name="id_pesanan" value="<?= $row['id_pesanan']; ?>">
+                                                    <button type="button" class="btn btn-sm btn-success fw-medium rounded-pill w-100 shadow-sm btn-confirm-acc" style="font-size:0.8rem;">
+>>>>>>> e324c6d (Ijin Kompe)
                                                         <i class="bi bi-check2-all me-1"></i> ACC Bayar
                                                     </button>
                                                 </form>
@@ -273,6 +346,32 @@ $query_pesanan = mysqli_query($koneksi, "
             </div>
         </div>
     </div>
+<<<<<<< HEAD
+=======
+    
+>>>>>>> e324c6d (Ijin Kompe)
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Konfirmasi ACC Bayar dengan SweetAlert2
+        document.querySelectorAll('.btn-confirm-acc').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const form = this.closest('.form-acc-bayar');
+                Swal.fire({
+                    title: 'Konfirmasi Pembayaran?',
+                    text: 'Pastikan dana transfer pelanggan sudah masuk ke rekening bank!',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#198754',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, ACC Pembayaran',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

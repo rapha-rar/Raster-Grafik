@@ -10,7 +10,10 @@ if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
 $dir_upload = "public/uploads/produk/";
 if (!is_dir($dir_upload)) mkdir($dir_upload, 0777, true);
 
+<<<<<<< HEAD
 // --- LOGIKA AKSI ADMIN (CRUD) ---
+=======
+>>>>>>> e324c6d (Ijin Kompe)
 if (isset($_POST['aksi']) && $_POST['aksi'] == 'tambah_produk') {
     $nama_produk = mysqli_real_escape_string($koneksi, $_POST['nama_produk']);
     $tipe_harga = $_POST['tipe_harga'];
@@ -25,7 +28,33 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'tambah_produk') {
     }
     $query_tambah = "INSERT INTO produk (nama_produk, tipe_harga, harga_dasar, deskripsi, gambar_katalog) VALUES ('$nama_produk', '$tipe_harga', $harga_dasar, '$deskripsi', '$nama_file_gambar')";
     if (mysqli_query($koneksi, $query_tambah)) {
+<<<<<<< HEAD
         echo "<script>alert('Produk baru berhasil ditambahkan!'); window.location.href='admin_produk.php';</script>";
+=======
+        echo "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+            <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+            <style>body { font-family: 'Poppins', sans-serif; }</style>
+        </head>
+        <body style='background-color:#f4f7f6;'>
+            <script>
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Produk baru telah ditambahkan ke katalog.',
+                    icon: 'success',
+                    confirmButtonColor: '#0088cc',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.href = 'admin_produk.php';
+                });
+            </script>
+        </body>
+        </html>";
+        exit();
+>>>>>>> e324c6d (Ijin Kompe)
     }
 }
 
@@ -45,7 +74,33 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'edit_produk') {
     }
     $query_edit = "UPDATE produk SET nama_produk = '$nama_produk', tipe_harga = '$tipe_harga', harga_dasar = $harga_dasar, deskripsi = '$deskripsi', gambar_katalog = '$nama_file_gambar' WHERE id_produk = $id_produk";
     if (mysqli_query($koneksi, $query_edit)) {
+<<<<<<< HEAD
         echo "<script>alert('Data produk berhasil diperbarui!'); window.location.href='admin_produk.php';</script>";
+=======
+        echo "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+            <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+            <style>body { font-family: 'Poppins', sans-serif; }</style>
+        </head>
+        <body style='background-color:#f4f7f6;'>
+            <script>
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Data produk telah berhasil diperbarui.',
+                    icon: 'success',
+                    confirmButtonColor: '#0088cc',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.href = 'admin_produk.php';
+                });
+            </script>
+        </body>
+        </html>";
+        exit();
+>>>>>>> e324c6d (Ijin Kompe)
     }
 }
 
@@ -53,10 +108,58 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'hapus_produk') {
     $id_produk = intval($_POST['id_produk']);
     try {
         if (mysqli_query($koneksi, "DELETE FROM produk WHERE id_produk = $id_produk")) {
+<<<<<<< HEAD
             echo "<script>alert('Produk berhasil dihapus!'); window.location.href='admin_produk.php';</script>";
+=======
+            echo "
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+                <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+                <style>body { font-family: 'Poppins', sans-serif; }</style>
+            </head>
+            <body style='background-color:#f4f7f6;'>
+                <script>
+                    Swal.fire({
+                        title: 'Terhapus!',
+                        text: 'Produk telah berhasil dihapus.',
+                        icon: 'success',
+                        confirmButtonColor: '#0088cc',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = 'admin_produk.php';
+                    });
+                </script>
+            </body>
+            </html>";
+            exit();
+>>>>>>> e324c6d (Ijin Kompe)
         }
     } catch (Exception $e) {
-        echo "<script>alert('Produk tidak dapat dihapus karena sudah ada riwayat pesanan pelanggan yang menggunakan produk ini.'); window.location.href='admin_produk.php';</script>";
+        echo "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+            <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+            <style>body { font-family: 'Poppins', sans-serif; }</style>
+        </head>
+        <body style='background-color:#f4f7f6;'>
+            <script>
+                Swal.fire({
+                    title: 'Gagal Menghapus!',
+                    text: 'Produk tidak dapat dihapus karena sudah ada riwayat pesanan yang menggunakan produk ini.',
+                    icon: 'error',
+                    confirmButtonColor: '#cc0000',
+                    confirmButtonText: 'Tutup'
+                }).then(() => {
+                    window.location.href = 'admin_produk.php';
+                });
+            </script>
+        </body>
+        </html>";
+        exit();
     }
 }
 
@@ -73,9 +176,16 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<<<<<<< HEAD
     
     <style>
         :root { --biru-rg: #0088cc; --merah-rg: #cc0000; --bg-light: #f4f7f6; }
+=======
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        :root { --biru-rg: #0088cc; --merah-rg: #160000ff; --bg-light: #f4f7f6; }
+>>>>>>> e324c6d (Ijin Kompe)
         body { font-family: 'Poppins', sans-serif; background-color: var(--bg-light); color: #333; }
         .text-merah { color: var(--merah-rg); }
         .text-biru { color: var(--biru-rg) !important; }
@@ -90,7 +200,10 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
 </head>
 <body>
 
+<<<<<<< HEAD
     <!-- Top Navigation Admin -->
+=======
+>>>>>>> e324c6d (Ijin Kompe)
     <nav class="navbar navbar-expand-lg navbar-dark admin-navbar shadow-sm mb-4 py-3">
         <div class="container-fluid px-4">
             <a class="navbar-brand fw-bold fs-4" href="#">
@@ -106,7 +219,10 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
                         <a class="nav-link" href="admin_pesanan.php"><i class="bi bi-cart-check me-1"></i> Kelola Pesanan</a>
                     </li>
                     <li class="nav-item">
+<<<<<<< HEAD
                         <!-- UBAH WARNA DARI KUNING KE BIRU SAMA SEPERTI LOGO -->
+=======
+>>>>>>> e324c6d (Ijin Kompe)
                         <a class="nav-link active fw-bold" style="color: var(--biru-rg) !important;" href="admin_produk.php"><i class="bi bi-box-seam me-1"></i> Kelola Produk</a>
                     </li>
                 </ul>
@@ -166,10 +282,18 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
                                             <button class="btn btn-sm btn-light border rounded-circle shadow-sm" data-bs-toggle="modal" data-bs-target="#modalEditProduk<?= $p['id_produk']; ?>" title="Edit Produk">
                                                 <i class="bi bi-pencil-square text-primary"></i>
                                             </button>
+<<<<<<< HEAD
                                             <form action="" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?');">
                                                 <input type="hidden" name="aksi" value="hapus_produk">
                                                 <input type="hidden" name="id_produk" value="<?= $p['id_produk']; ?>">
                                                 <button type="submit" class="btn btn-sm btn-light border rounded-circle shadow-sm" title="Hapus Produk">
+=======
+                                            
+                                            <form action="" method="POST" class="form-hapus-produk">
+                                                <input type="hidden" name="aksi" value="hapus_produk">
+                                                <input type="hidden" name="id_produk" value="<?= $p['id_produk']; ?>">
+                                                <button type="button" class="btn btn-sm btn-light border rounded-circle shadow-sm btn-confirm-hapus" title="Hapus Produk">
+>>>>>>> e324c6d (Ijin Kompe)
                                                     <i class="bi bi-trash text-danger"></i>
                                                 </button>
                                             </form>
@@ -287,5 +411,27 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Konfirmasi Hapus Produk dengan SweetAlert2
+        document.querySelectorAll('.btn-confirm-hapus').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const form = this.closest('.form-hapus-produk');
+                Swal.fire({
+                    title: 'Hapus Produk?',
+                    text: 'Tindakan ini tidak dapat dibatalkan!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
