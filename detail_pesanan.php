@@ -49,6 +49,9 @@ if (mysqli_num_rows($result) == 0) { header("Location: dashboard_pelanggan.php")
 $pesanan = mysqli_fetch_assoc($result);
 
 $query_riwayat = mysqli_query($koneksi, "SELECT * FROM riwayat_status WHERE id_pesanan = $id_pesanan ORDER BY waktu_update ASC");
+
+// Default ke qris jika kolom kosong
+$metode_pembayaran = !empty($pesanan['metode_pembayaran']) ? strtolower($pesanan['metode_pembayaran']) : 'qris';
 ?>
 
 <!DOCTYPE html>
@@ -68,6 +71,17 @@ $query_riwayat = mysqli_query($koneksi, "SELECT * FROM riwayat_status WHERE id_p
         body { font-family: 'Poppins', sans-serif; background-color: var(--bg-light); color: #333; }
         .text-merah { color: var(--merah-rg); }
         .text-biru { color: var(--biru-rg); }
+        
+        #page-loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center; z-index: 99999;
+            opacity: 1; visibility: visible; transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #page-loader.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
+        .spinner-container { text-align: center; animation: pulseLoader 1.5s infinite ease-in-out; }
+        @keyframes pulseLoader { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+
         .card-custom { border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
         .btn-primer { background-color: var(--merah-rg); color: white; font-weight: 500; }
         .btn-primer:hover { background-color: #aa0000; color: white; }
@@ -81,6 +95,18 @@ $query_riwayat = mysqli_query($koneksi, "SELECT * FROM riwayat_status WHERE id_p
 </head>
 <body>
 
+    <!-- OVERLAY LOADER -->
+    <div id="page-loader">
+        <div class="spinner-container">
+            <div class="spinner-border text-primary" role="status" style="width: 3.5rem; height: 3.5rem; border-width: 0.3em; color: #0088cc !important;"></div>
+            <div class="loader-logo mt-3 fw-bold fs-5">
+                <span style="color: #0088cc;">RASTER</span><span style="color: #cc0000;">GRAFIK</span>
+            </div>
+            <small class="text-muted d-block mt-1">Memuat halaman...</small>
+        </div>
+    </div>
+
+    <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg bg-white shadow-sm mb-5 py-3">
         <div class="container">
             <a class="navbar-brand fw-bold fs-4" href="index.php">
@@ -97,7 +123,7 @@ $query_riwayat = mysqli_query($koneksi, "SELECT * FROM riwayat_status WHERE id_p
     <div class="container pb-5">
         <div class="row g-4">
             
-            <!-- KOLOM KIRI -->
+            <!-- RINCIAN PESANAN -->
             <div class="col-lg-7">
                 <div class="card card-custom p-4 p-md-5 h-100">
                     <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
@@ -158,22 +184,46 @@ $query_riwayat = mysqli_query($koneksi, "SELECT * FROM riwayat_status WHERE id_p
                 </div>
             </div>
 
-            <!-- KOLOM KANAN -->
+            <!-- INSTRUKSI PEMBAYARAN SESUAI METODE YANG DIPILIH -->
             <div class="col-lg-5">
+                
                 <?php if ($pesanan['status_pembayaran'] == 'belum_bayar'): ?>
                     <div class="card card-custom border border-danger border-opacity-25 p-4 mb-4" style="background-color: #fff9f9;">
-                        <h5 class="fw-bold text-danger mb-3"><i class="bi bi-wallet2 me-2"></i> Selesaikan Pembayaran</h5>
-                        <p class="small text-muted mb-3">Silakan transfer sebesar <strong class="text-dark">Rp <?= number_format($pesanan['total_tagihan'], 0, ',', '.'); ?></strong> ke rekening berikut:</p>
-                        
-                        <div class="bg-white border rounded-4 p-3 mb-4 text-center shadow-sm">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/2560px-Bank_Central_Asia.svg.png" height="25" class="mb-2" alt="BCA">
-                            <h5 class="fw-bold mb-0 text-dark">123 456 7890</h5>
-                            <span class="small text-muted">a.n PT Raster Grafik Indonesia</span>
-                        </div>
+                        <h5 class="fw-bold text-danger mb-2"><i class="bi bi-wallet2 me-2"></i> Selesaikan Pembayaran</h5>
+                        <p class="small text-muted mb-3">Total Tagihan: <strong class="text-danger fs-5 d-block">Rp <?= number_format($pesanan['total_tagihan'], 0, ',', '.'); ?></strong></p>
 
+                        <!-- TAMPILAN INFORMASI BERDASARKAN PILIHAN DI PESAN.PHP -->
+                        <?php if ($metode_pembayaran == 'qris'): ?>
+                            <div class="bg-white border rounded-4 p-3 shadow-sm text-center mb-4">
+                                <span class="badge bg-danger mb-2 px-3 py-1"><i class="bi bi-qr-code-scan me-1"></i> QRIS Instant</span>
+                                <p class="small text-muted mb-2">Scan kode QRIS di bawah ini dengan GoPay, OVO, DANA, ShopeePay, atau m-Banking:</p>
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=RasterGrafik-<?= $pesanan['nomor_invoice']; ?>" class="img-fluid rounded-3 border p-2 mb-2" alt="QRIS Raster Grafik" style="max-width: 170px;">
+                                <small class="d-block fw-bold text-dark">a.n PT Raster Grafik Indonesia</small>
+                            </div>
+                        <?php elseif ($metode_pembayaran == 'bca'): ?>
+                            <div class="bg-white border rounded-4 p-3 shadow-sm text-center mb-4">
+                                <span class="badge bg-primary mb-2 px-3 py-1">Transfer Bank BCA</span>
+                                <div class="mt-2">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg?utm_source=id.wikipedia.org&utm_campaign=index&utm_content=original" height="24" class="mb-2" alt="BCA">
+                                    <h5 class="fw-bold mb-0 text-dark">123 456 7890</h5>
+                                    <span class="small text-muted">a.n PT Raster Grafik Indonesia</span>
+                                </div>
+                            </div>
+                        <?php elseif ($metode_pembayaran == 'bri'): ?>
+                            <div class="bg-white border rounded-4 p-3 shadow-sm text-center mb-4">
+                                <span class="badge bg-primary mb-2 px-3 py-1">Transfer Bank BRI</span>
+                                <div class="mt-2">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/6/68/BANK_BRI_logo.svg?utm_source=id.wikipedia.org&utm_campaign=index&utm_content=original" height="24" class="mb-2" alt="BRI">
+                                    <h5 class="fw-bold mb-0 text-dark">0987 6543 2109 876</h5>
+                                    <span class="small text-muted">a.n PT Raster Grafik Indonesia</span>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- FORM UPLOAD BUKTI -->
                         <form action="" method="POST" enctype="multipart/form-data">
                             <div class="mb-3">
-                                <label class="form-label fw-medium small text-dark"><i class="bi bi-cloud-upload me-1"></i> Upload Bukti Transfer</label>
+                                <label class="form-label fw-medium small text-dark"><i class="bi bi-cloud-upload me-1"></i> Upload Bukti Transfer / Screenshot Pembayaran</label>
                                 <input type="file" name="bukti_bayar" class="form-control" accept="image/*" required>
                             </div>
                             <button type="submit" name="upload_bukti" class="btn btn-danger w-100 fw-bold rounded-pill shadow-sm">Kirim Bukti Pembayaran</button>
@@ -181,6 +231,7 @@ $query_riwayat = mysqli_query($koneksi, "SELECT * FROM riwayat_status WHERE id_p
                     </div>
                 <?php endif; ?>
 
+                <!-- LIVE TRACKING TIMELINE -->
                 <div class="card card-custom p-4 h-100">
                     <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-signpost-split me-2 text-biru"></i> Live Tracking</h5>
                     <div class="timeline mt-2">
@@ -193,10 +244,37 @@ $query_riwayat = mysqli_query($koneksi, "SELECT * FROM riwayat_status WHERE id_p
                         <?php endwhile; ?>
                     </div>
                 </div>
+
             </div>
             
         </div>
     </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('page-loader');
+            if (loader) loader.classList.add('fade-out');
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const links = document.querySelectorAll('a[href]:not([target="_blank"]):not([href^="#"]):not([href^="javascript"]):not([download])');
+            const loader = document.getElementById('page-loader');
+
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (e.ctrlKey || e.metaKey) return;
+                    if (loader) loader.classList.remove('fade-out');
+                });
+            });
+
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    if (loader) loader.classList.remove('fade-out');
+                });
+            });
+        });
+    </script>
 </body>
 </html>

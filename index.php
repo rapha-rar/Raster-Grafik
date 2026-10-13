@@ -26,25 +26,62 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
         .text-biru { color: var(--biru-rg); }
         .text-merah { color: var(--merah-rg); }
         
+        /* PAGE LOADER STYLING */
+        #page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #page-loader.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .spinner-container {
+            text-align: center;
+            animation: pulseLoader 1.5s infinite ease-in-out;
+        }
+        @keyframes pulseLoader {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
         .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px; }
-        
         .btn-primer { background-color: var(--merah-rg); color: white; font-weight: 500; transition: all 0.3s ease; }
         .btn-primer:hover { background-color: #aa0000; color: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(204,0,0,0.2); }
-        
         .btn-sekunder { background-color: var(--biru-rg); color: white; font-weight: 500; transition: all 0.3s ease; }
         .btn-sekunder:hover { background-color: #006699; color: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,136,204,0.2); }
-
         .hero-section { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 80px 0; border-bottom: 5px solid var(--merah-rg); }
         .hero-border-bottom { height: 5px; background-color: var(--biru-rg); }
-
         .fitur-box { text-align: center; padding: 30px 20px; border: none; border-radius: 16px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: 0.3s; height: 100%; }
         .fitur-box:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
-        
         .card-custom { border: none; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); transition: transform 0.3s ease, box-shadow 0.3s ease; overflow: hidden; }
         .card-custom:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body class="bg-light">
+
+    <!-- OVERLAY PAGE LOADER -->
+    <div id="page-loader">
+        <div class="spinner-container">
+            <div class="spinner-border text-primary" role="status" style="width: 3.5rem; height: 3.5rem; border-width: 0.3em; color: #0088cc !important;"></div>
+            <div class="loader-logo mt-3 fw-bold fs-5">
+                <span style="color: #0088cc;">RASTER</span><span style="color: #cc0000;">GRAFIK</span>
+            </div>
+            <small class="text-muted d-block mt-1">Memuat halaman...</small>
+        </div>
+    </div>
 
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top py-3">
@@ -99,7 +136,7 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
     </section>
     <div class="hero-border-bottom"></div>
 
-    <!-- MENGAPA MEMILIH KAMI (KEUNGGULAN PERCETAKAN) -->
+    <!-- MENGAPA MEMILIH KAMI -->
     <section class="py-5 bg-white">
         <div class="container my-4">
             <div class="text-center mb-5">
@@ -188,5 +225,30 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
     </footer>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('page-loader');
+            if (loader) loader.classList.add('fade-out');
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const links = document.querySelectorAll('a[href]:not([target="_blank"]):not([href^="#"]):not([href^="javascript"]):not([download])');
+            const loader = document.getElementById('page-loader');
+
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (e.ctrlKey || e.metaKey) return;
+                    if (loader) loader.classList.remove('fade-out');
+                });
+            });
+
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    if (loader) loader.classList.remove('fade-out');
+                });
+            });
+        });
+    </script>
 </body>
 </html>

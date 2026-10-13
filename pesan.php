@@ -34,26 +34,69 @@ $user = mysqli_fetch_assoc($query_user);
         .text-merah { color: var(--merah-rg); }
         .text-biru { color: var(--biru-rg); }
         
+        #page-loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center; z-index: 99999;
+            opacity: 1; visibility: visible; transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #page-loader.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
+        .spinner-container { text-align: center; animation: pulseLoader 1.5s infinite ease-in-out; }
+        @keyframes pulseLoader { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+
         .card-custom { border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .card-produk-header { background-color: white; border-bottom: 4px solid var(--biru-rg); border-radius: 16px 16px 0 0 !important; }
-        
         .btn-primer { background-color: var(--merah-rg); color: white; font-weight: 500; border-radius: 30px; transition: all 0.3s ease; }
         .btn-primer:hover { background-color: #aa0000; color: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(204,0,0,0.2); }
-        
         .form-control, .form-select { border-radius: 8px; padding: 0.6rem 1rem; border: 1px solid #dee2e6; }
         .form-control:focus, .form-select:focus { border-color: var(--biru-rg); box-shadow: 0 0 0 0.25rem rgba(0,136,204,0.25); }
+
+        /* Card Radio Payment Selection */
+        .payment-card {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .payment-card:hover {
+            border-color: var(--biru-rg);
+            background-color: #f8fbfe;
+        }
+        .btn-check:checked + .payment-card {
+            border-color: var(--biru-rg);
+            background-color: #e6f4fc;
+            box-shadow: 0 4px 12px rgba(0,136,204,0.15);
+        }
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg bg-white shadow-sm mb-5 py-3">
+    <!-- OVERLAY LOADER -->
+    <div id="page-loader">
+        <div class="spinner-container">
+            <div class="spinner-border text-primary" role="status" style="width: 3.5rem; height: 3.5rem; border-width: 0.3em; color: #0088cc !important;"></div>
+            <div class="loader-logo mt-3 fw-bold fs-5">
+                <span style="color: #0088cc;">RASTER</span><span style="color: #cc0000;">GRAFIK</span>
+            </div>
+            <small class="text-muted d-block mt-1">Memuat halaman...</small>
+        </div>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm mb-4 py-3">
         <div class="container">
             <a class="navbar-brand fw-bold fs-4" href="index.php">
                 <span class="text-biru">RASTER</span><span class="text-merah">GRAFIK</span>
             </a>
-            <div class="d-flex align-items-center">
-                <span class="me-3 text-muted d-none d-md-block"><i class="bi bi-person-circle me-1"></i> Halo, <?= htmlspecialchars($user['nama']); ?></span>
-                <a href="dashboard_pelanggan.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3 me-2"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+            <div class="d-flex align-items-center gap-2">
+                <span class="me-2 text-muted d-none d-md-block"><i class="bi bi-person-circle me-1"></i> Halo, <?= htmlspecialchars($user['nama']); ?></span>
+                <a href="index.php" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                    <i class="bi bi-house-door me-1"></i> Beranda
+                </a>
+                <a href="dashboard_pelanggan.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                    <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                </a>
             </div>
         </div>
     </nav>
@@ -61,6 +104,14 @@ $user = mysqli_fetch_assoc($query_user);
     <div class="container pb-5">
         <div class="row justify-content-center">
             <div class="col-lg-8">
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <a href="index.php" class="btn btn-light border btn-sm px-3 rounded-pill text-muted shadow-sm">
+                        <i class="bi bi-arrow-left me-1"></i> Kembali ke Beranda
+                    </a>
+                    <span class="text-muted small"><i class="bi bi-cart3 me-1"></i> Form Pemesanan Produk</span>
+                </div>
+
                 <div class="card card-custom overflow-hidden mb-4">
                     <div class="card-header card-produk-header p-4 pb-3">
                         <div class="d-flex justify-content-between align-items-start">
@@ -142,12 +193,52 @@ $user = mysqli_fetch_assoc($query_user);
                             <hr class="my-5 border-light">
 
                             <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-truck me-2 text-biru fs-4 align-middle"></i> 3. Pengiriman</h5>
-                            <div class="mb-5">
+                            <div class="mb-4">
                                 <label class="form-label fw-medium">Metode Pengiriman</label>
                                 <select name="pengiriman" class="form-select" required>
                                     <option value="ambil_sendiri">Ambil Sendiri di Toko Raster Grafik</option>
                                     <option value="kirim_ojol">Kirim via Ojek Online (Ongkir COD ke Driver)</option>
                                 </select>
+                            </div>
+
+                            <hr class="my-5 border-light">
+
+                            <!-- OPSI PEMBAYARAN BARU -->
+                            <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-wallet2 me-2 text-biru fs-4 align-middle"></i> 4. Metode Pembayaran</h5>
+                            <div class="row g-3 mb-5">
+                                <div class="col-md-4">
+                                    <input type="radio" class="btn-check" name="metode_pembayaran" id="pay_qris" value="qris" checked>
+                                    <label class="payment-card d-block h-100" for="pay_qris">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <span class="badge bg-danger">Scan QR</span>
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg?utm_source=id.wikipedia.org&utm_campaign=index&utm_content=original" height="16" alt="QRIS">
+                                        </div>
+                                        <h6 class="fw-bold mb-1">QRIS</h6>
+                                        <small class="text-muted d-block" style="font-size:0.75rem;">Scan via GoPay, OVO, DANA, ShopeePay, m-Banking</small>
+                                    </label>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="radio" class="btn-check" name="metode_pembayaran" id="pay_bca" value="bca">
+                                    <label class="payment-card d-block h-100" for="pay_bca">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <span class="badge bg-primary">Bank</span>
+                                            <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/1920px-Bank_Central_Asia.svg.png?utm_source=id.wikipedia.org&utm_campaign=index&utm_content=thumbnail" height="16" alt="BCA">
+                                        </div>
+                                        <h6 class="fw-bold mb-1">Transfer BCA</h6>
+                                        <small class="text-muted d-block" style="font-size:0.75rem;">Rekening 123 456 7890 a.n PT Raster Grafik</small>
+                                    </label>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="radio" class="btn-check" name="metode_pembayaran" id="pay_bri" value="bri">
+                                    <label class="payment-card d-block h-100" for="pay_bri">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <span class="badge bg-primary">Bank</span>
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/6/68/BANK_BRI_logo.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original" height="16" alt="BRI">
+                                        </div>
+                                        <h6 class="fw-bold mb-1">Transfer BRI</h6>
+                                        <small class="text-muted d-block" style="font-size:0.75rem;">Rekening 0987 6543 2109 876 a.n PT Raster Grafik</small>
+                                    </label>
+                                </div>
                             </div>
 
                             <!-- BOX RINCIAN HARGA -->
@@ -168,7 +259,7 @@ $user = mysqli_fetch_assoc($query_user);
                             <div class="form-check mb-4">
                                 <input class="form-check-input" type="checkbox" id="persetujuan" required>
                                 <label class="form-check-label small text-muted" for="persetujuan">
-                                    Saya menyetujui bahwa data spesifikasi ukuran dan file yang saya kirimkan sudah benar.
+                                    Saya menyetujui bahwa data spesifikasi ukuran, file, dan metode pembayaran yang saya pilih sudah benar.
                                 </label>
                             </div>
 
@@ -200,6 +291,30 @@ $user = mysqli_fetch_assoc($query_user);
             document.getElementById('text_total_tagihan').innerText = 'Rp ' + totalTagihan.toLocaleString('id-ID');
         }
         window.onload = hitungTotal;
+
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('page-loader');
+            if (loader) loader.classList.add('fade-out');
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const links = document.querySelectorAll('a[href]:not([target="_blank"]):not([href^="#"]):not([href^="javascript"]):not([download])');
+            const loader = document.getElementById('page-loader');
+
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (e.ctrlKey || e.metaKey) return;
+                    if (loader) loader.classList.remove('fade-out');
+                });
+            });
+
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    if (loader) loader.classList.remove('fade-out');
+                });
+            });
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -9,14 +9,9 @@ if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
 
 $id_admin = $_SESSION['id_user'];
 
-// --- LOGIKA AKSI ADMIN ---
 if (isset($_POST['aksi']) && $_POST['aksi'] == 'verifikasi_pembayaran') {
     $id_pesanan = intval($_POST['id_pesanan']);
     
-<<<<<<< HEAD
-    // Cek apakah pesanan ini memilih opsi request custom desain
-=======
->>>>>>> e324c6d (Ijin Kompe)
     $q_check = mysqli_query($koneksi, "SELECT opsi_desain FROM detail_pesanan WHERE id_pesanan = $id_pesanan");
     $d_check = mysqli_fetch_assoc($q_check);
     
@@ -31,9 +26,6 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'verifikasi_pembayaran') {
     mysqli_query($koneksi, "UPDATE pesanan SET status_pembayaran = 'lunas', status_pesanan = '$status_awal' WHERE id_pesanan = $id_pesanan");
     mysqli_query($koneksi, "INSERT INTO riwayat_status (id_pesanan, status, keterangan, diupdate_oleh) VALUES ($id_pesanan, '$status_awal', '$ket_awal', $id_admin)");
     
-<<<<<<< HEAD
-    echo "<script>alert('Pembayaran berhasil diverifikasi! Status otomatis diset ke: " . strtoupper(str_replace('_', ' ', $status_awal)) . "'); window.location.href='admin_pesanan.php';</script>";
-=======
     $status_text = strtoupper(str_replace('_', ' ', $status_awal));
     echo "
     <!DOCTYPE html>
@@ -58,7 +50,6 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'verifikasi_pembayaran') {
     </body>
     </html>";
     exit();
->>>>>>> e324c6d (Ijin Kompe)
 }
 
 if (isset($_POST['aksi']) && $_POST['aksi'] == 'update_status_pesanan') {
@@ -110,17 +101,10 @@ $query_pesanan = mysqli_query($koneksi, "
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin - Raster Grafik</title>
     
-<<<<<<< HEAD
-    <!-- CSS & Fonts -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-=======
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
->>>>>>> e324c6d (Ijin Kompe)
     
     <style>
         :root { --biru-rg: #0088cc; --merah-rg: #cc0000; --bg-light: #f4f7f6; }
@@ -128,9 +112,18 @@ $query_pesanan = mysqli_query($koneksi, "
         .text-merah { color: var(--merah-rg); }
         .text-biru { color: var(--biru-rg) !important; }
         
+        #page-loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center; z-index: 99999;
+            opacity: 1; visibility: visible; transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #page-loader.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
+        .spinner-container { text-align: center; animation: pulseLoader 1.5s infinite ease-in-out; }
+        @keyframes pulseLoader { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+
         .admin-navbar { background-color: #1a1d20 !important; }
         .card-custom { border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
-        
         .table-custom th { background-color: #f8f9fa; font-weight: 600; color: #555; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; border-bottom: 2px solid #eee; }
         .table-custom td { vertical-align: middle; font-size: 0.9rem; }
         .badge-custom { padding: 0.5em 0.8em; font-weight: 500; border-radius: 30px; }
@@ -141,10 +134,17 @@ $query_pesanan = mysqli_query($koneksi, "
 </head>
 <body>
 
-<<<<<<< HEAD
-    <!-- Top Navigation Admin -->
-=======
->>>>>>> e324c6d (Ijin Kompe)
+    <!-- OVERLAY LOADER -->
+    <div id="page-loader">
+        <div class="spinner-container">
+            <div class="spinner-border text-primary" role="status" style="width: 3.5rem; height: 3.5rem; border-width: 0.3em; color: #0088cc !important;"></div>
+            <div class="loader-logo mt-3 fw-bold fs-5">
+                <span style="color: #0088cc;">RASTER</span><span style="color: #cc0000;">GRAFIK</span>
+            </div>
+            <small class="text-muted d-block mt-1">Memuat halaman...</small>
+        </div>
+    </div>
+
     <nav class="navbar navbar-expand-lg navbar-dark admin-navbar shadow-sm mb-4 py-3">
         <div class="container-fluid px-4">
             <a class="navbar-brand fw-bold fs-4" href="#">
@@ -157,10 +157,6 @@ $query_pesanan = mysqli_query($koneksi, "
             <div class="collapse navbar-collapse" id="adminNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-4 fw-medium">
                     <li class="nav-item">
-<<<<<<< HEAD
-                        <!-- UBAH WARNA DARI KUNING KE BIRU SAMA SEPERTI LOGO -->
-=======
->>>>>>> e324c6d (Ijin Kompe)
                         <a class="nav-link active fw-bold" style="color: var(--biru-rg) !important;" href="admin_pesanan.php"><i class="bi bi-cart-check me-1"></i> Kelola Pesanan</a>
                     </li>
                     <li class="nav-item">
@@ -301,17 +297,10 @@ $query_pesanan = mysqli_query($koneksi, "
                                     <td>
                                         <div class="d-flex flex-column gap-2 align-items-center">
                                             <?php if ($row['status_pembayaran'] == 'menunggu_verifikasi'): ?>
-<<<<<<< HEAD
-                                                <form action="" method="POST" onsubmit="return confirm('Konfirmasi bahwa uang transfer sudah masuk?');" class="w-100">
-                                                    <input type="hidden" name="aksi" value="verifikasi_pembayaran">
-                                                    <input type="hidden" name="id_pesanan" value="<?= $row['id_pesanan']; ?>">
-                                                    <button type="submit" class="btn btn-sm btn-success fw-medium rounded-pill w-100 shadow-sm" style="font-size:0.8rem;">
-=======
                                                 <form action="" method="POST" class="w-100 form-acc-bayar">
                                                     <input type="hidden" name="aksi" value="verifikasi_pembayaran">
                                                     <input type="hidden" name="id_pesanan" value="<?= $row['id_pesanan']; ?>">
                                                     <button type="button" class="btn btn-sm btn-success fw-medium rounded-pill w-100 shadow-sm btn-confirm-acc" style="font-size:0.8rem;">
->>>>>>> e324c6d (Ijin Kompe)
                                                         <i class="bi bi-check2-all me-1"></i> ACC Bayar
                                                     </button>
                                                 </form>
@@ -346,13 +335,33 @@ $query_pesanan = mysqli_query($koneksi, "
             </div>
         </div>
     </div>
-<<<<<<< HEAD
-=======
     
->>>>>>> e324c6d (Ijin Kompe)
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Konfirmasi ACC Bayar dengan SweetAlert2
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('page-loader');
+            if (loader) loader.classList.add('fade-out');
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const links = document.querySelectorAll('a[href]:not([target="_blank"]):not([href^="#"]):not([href^="javascript"]):not([download])');
+            const loader = document.getElementById('page-loader');
+
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (e.ctrlKey || e.metaKey) return;
+                    if (loader) loader.classList.remove('fade-out');
+                });
+            });
+
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    if (loader) loader.classList.remove('fade-out');
+                });
+            });
+        });
+
         document.querySelectorAll('.btn-confirm-acc').forEach(button => {
             button.addEventListener('click', function(e) {
                 const form = this.closest('.form-acc-bayar');

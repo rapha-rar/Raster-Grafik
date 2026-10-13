@@ -66,18 +66,37 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
         .text-merah { color: var(--merah-rg); }
         .text-biru { color: var(--biru-rg); }
         
+        #page-loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center; z-index: 99999;
+            opacity: 1; visibility: visible; transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #page-loader.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
+        .spinner-container { text-align: center; animation: pulseLoader 1.5s infinite ease-in-out; }
+        @keyframes pulseLoader { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+
         .card-custom { border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); transition: transform 0.3s ease, box-shadow 0.3s ease; }
         .card-custom:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        
         .btn-primer { background-color: var(--merah-rg); color: white; font-weight: 500; border-radius: 8px; transition: all 0.3s ease; }
         .btn-primer:hover { background-color: #aa0000; color: white; transform: translateY(-2px); }
-        
         .table-custom th { background-color: #f8f9fa; font-weight: 600; color: #555; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; border-bottom: 2px solid #eee; }
         .table-custom td { vertical-align: middle; font-size: 0.95rem; }
         .badge-custom { padding: 0.5em 0.8em; font-weight: 500; border-radius: 30px; }
     </style>
 </head>
 <body>
+
+    <!-- OVERLAY LOADER -->
+    <div id="page-loader">
+        <div class="spinner-container">
+            <div class="spinner-border text-primary" role="status" style="width: 3.5rem; height: 3.5rem; border-width: 0.3em; color: #0088cc !important;"></div>
+            <div class="loader-logo mt-3 fw-bold fs-5">
+                <span style="color: #0088cc;">RASTER</span><span style="color: #cc0000;">GRAFIK</span>
+            </div>
+            <small class="text-muted d-block mt-1">Memuat halaman...</small>
+        </div>
+    </div>
 
     <nav class="navbar navbar-expand-lg bg-white shadow-sm mb-5 py-3">
         <div class="container">
@@ -140,7 +159,7 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
                                     <th>Total Tagihan</th>
                                     <th>Pembayaran</th>
                                     <th>Status Pesanan</th>
-                                    <th class="text-center">Detail</th>
+                                    <th class="text-end">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -245,5 +264,30 @@ $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('page-loader');
+            if (loader) loader.classList.add('fade-out');
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const links = document.querySelectorAll('a[href]:not([target="_blank"]):not([href^="#"]):not([href^="javascript"]):not([download])');
+            const loader = document.getElementById('page-loader');
+
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (e.ctrlKey || e.metaKey) return;
+                    if (loader) loader.classList.remove('fade-out');
+                });
+            });
+
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    if (loader) loader.classList.remove('fade-out');
+                });
+            });
+        });
+    </script>
 </body>
 </html>

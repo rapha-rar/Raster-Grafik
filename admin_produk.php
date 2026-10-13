@@ -10,10 +10,6 @@ if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
 $dir_upload = "public/uploads/produk/";
 if (!is_dir($dir_upload)) mkdir($dir_upload, 0777, true);
 
-<<<<<<< HEAD
-// --- LOGIKA AKSI ADMIN (CRUD) ---
-=======
->>>>>>> e324c6d (Ijin Kompe)
 if (isset($_POST['aksi']) && $_POST['aksi'] == 'tambah_produk') {
     $nama_produk = mysqli_real_escape_string($koneksi, $_POST['nama_produk']);
     $tipe_harga = $_POST['tipe_harga'];
@@ -28,9 +24,6 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'tambah_produk') {
     }
     $query_tambah = "INSERT INTO produk (nama_produk, tipe_harga, harga_dasar, deskripsi, gambar_katalog) VALUES ('$nama_produk', '$tipe_harga', $harga_dasar, '$deskripsi', '$nama_file_gambar')";
     if (mysqli_query($koneksi, $query_tambah)) {
-<<<<<<< HEAD
-        echo "<script>alert('Produk baru berhasil ditambahkan!'); window.location.href='admin_produk.php';</script>";
-=======
         echo "
         <!DOCTYPE html>
         <html>
@@ -54,7 +47,6 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'tambah_produk') {
         </body>
         </html>";
         exit();
->>>>>>> e324c6d (Ijin Kompe)
     }
 }
 
@@ -74,9 +66,6 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'edit_produk') {
     }
     $query_edit = "UPDATE produk SET nama_produk = '$nama_produk', tipe_harga = '$tipe_harga', harga_dasar = $harga_dasar, deskripsi = '$deskripsi', gambar_katalog = '$nama_file_gambar' WHERE id_produk = $id_produk";
     if (mysqli_query($koneksi, $query_edit)) {
-<<<<<<< HEAD
-        echo "<script>alert('Data produk berhasil diperbarui!'); window.location.href='admin_produk.php';</script>";
-=======
         echo "
         <!DOCTYPE html>
         <html>
@@ -100,7 +89,6 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'edit_produk') {
         </body>
         </html>";
         exit();
->>>>>>> e324c6d (Ijin Kompe)
     }
 }
 
@@ -108,9 +96,6 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'hapus_produk') {
     $id_produk = intval($_POST['id_produk']);
     try {
         if (mysqli_query($koneksi, "DELETE FROM produk WHERE id_produk = $id_produk")) {
-<<<<<<< HEAD
-            echo "<script>alert('Produk berhasil dihapus!'); window.location.href='admin_produk.php';</script>";
-=======
             echo "
             <!DOCTYPE html>
             <html>
@@ -134,7 +119,6 @@ if (isset($_POST['aksi']) && $_POST['aksi'] == 'hapus_produk') {
             </body>
             </html>";
             exit();
->>>>>>> e324c6d (Ijin Kompe)
         }
     } catch (Exception $e) {
         echo "
@@ -176,23 +160,26 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-<<<<<<< HEAD
-    
-    <style>
-        :root { --biru-rg: #0088cc; --merah-rg: #cc0000; --bg-light: #f4f7f6; }
-=======
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
-        :root { --biru-rg: #0088cc; --merah-rg: #160000ff; --bg-light: #f4f7f6; }
->>>>>>> e324c6d (Ijin Kompe)
+        :root { --biru-rg: #0088cc; --merah-rg: #cc0000; --bg-light: #f4f7f6; }
         body { font-family: 'Poppins', sans-serif; background-color: var(--bg-light); color: #333; }
         .text-merah { color: var(--merah-rg); }
         .text-biru { color: var(--biru-rg) !important; }
         
+        #page-loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center; z-index: 99999;
+            opacity: 1; visibility: visible; transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #page-loader.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
+        .spinner-container { text-align: center; animation: pulseLoader 1.5s infinite ease-in-out; }
+        @keyframes pulseLoader { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+
         .admin-navbar { background-color: #1a1d20 !important; }
         .card-custom { border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
-        
         .table-custom th { background-color: #f8f9fa; font-weight: 600; color: #555; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; border-bottom: 2px solid #eee; }
         .table-custom td { vertical-align: middle; font-size: 0.9rem; }
         .badge-custom { padding: 0.5em 0.8em; font-weight: 500; border-radius: 30px; }
@@ -200,10 +187,17 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
 </head>
 <body>
 
-<<<<<<< HEAD
-    <!-- Top Navigation Admin -->
-=======
->>>>>>> e324c6d (Ijin Kompe)
+    <!-- OVERLAY LOADER -->
+    <div id="page-loader">
+        <div class="spinner-container">
+            <div class="spinner-border text-primary" role="status" style="width: 3.5rem; height: 3.5rem; border-width: 0.3em; color: #0088cc !important;"></div>
+            <div class="loader-logo mt-3 fw-bold fs-5">
+                <span style="color: #0088cc;">RASTER</span><span style="color: #cc0000;">GRAFIK</span>
+            </div>
+            <small class="text-muted d-block mt-1">Memuat halaman...</small>
+        </div>
+    </div>
+
     <nav class="navbar navbar-expand-lg navbar-dark admin-navbar shadow-sm mb-4 py-3">
         <div class="container-fluid px-4">
             <a class="navbar-brand fw-bold fs-4" href="#">
@@ -219,10 +213,6 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
                         <a class="nav-link" href="admin_pesanan.php"><i class="bi bi-cart-check me-1"></i> Kelola Pesanan</a>
                     </li>
                     <li class="nav-item">
-<<<<<<< HEAD
-                        <!-- UBAH WARNA DARI KUNING KE BIRU SAMA SEPERTI LOGO -->
-=======
->>>>>>> e324c6d (Ijin Kompe)
                         <a class="nav-link active fw-bold" style="color: var(--biru-rg) !important;" href="admin_produk.php"><i class="bi bi-box-seam me-1"></i> Kelola Produk</a>
                     </li>
                 </ul>
@@ -282,18 +272,11 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
                                             <button class="btn btn-sm btn-light border rounded-circle shadow-sm" data-bs-toggle="modal" data-bs-target="#modalEditProduk<?= $p['id_produk']; ?>" title="Edit Produk">
                                                 <i class="bi bi-pencil-square text-primary"></i>
                                             </button>
-<<<<<<< HEAD
-                                            <form action="" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?');">
-                                                <input type="hidden" name="aksi" value="hapus_produk">
-                                                <input type="hidden" name="id_produk" value="<?= $p['id_produk']; ?>">
-                                                <button type="submit" class="btn btn-sm btn-light border rounded-circle shadow-sm" title="Hapus Produk">
-=======
                                             
                                             <form action="" method="POST" class="form-hapus-produk">
                                                 <input type="hidden" name="aksi" value="hapus_produk">
                                                 <input type="hidden" name="id_produk" value="<?= $p['id_produk']; ?>">
                                                 <button type="button" class="btn btn-sm btn-light border rounded-circle shadow-sm btn-confirm-hapus" title="Hapus Produk">
->>>>>>> e324c6d (Ijin Kompe)
                                                     <i class="bi bi-trash text-danger"></i>
                                                 </button>
                                             </form>
@@ -410,9 +393,33 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
             </div>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Konfirmasi Hapus Produk dengan SweetAlert2
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('page-loader');
+            if (loader) loader.classList.add('fade-out');
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const links = document.querySelectorAll('a[href]:not([target="_blank"]):not([href^="#"]):not([href^="javascript"]):not([download])');
+            const loader = document.getElementById('page-loader');
+
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (e.ctrlKey || e.metaKey) return;
+                    if (loader) loader.classList.remove('fade-out');
+                });
+            });
+
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    if (loader) loader.classList.remove('fade-out');
+                });
+            });
+        });
+
         document.querySelectorAll('.btn-confirm-hapus').forEach(button => {
             button.addEventListener('click', function(e) {
                 const form = this.closest('.form-hapus-produk');

@@ -14,9 +14,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $panjang = floatval($_POST['panjang']);
     $lebar = floatval($_POST['lebar']);
     $qty = intval($_POST['qty']);
-    $opsi_desain = $_POST['opsi_desain'];
+    $opsi_desain_raw = $_POST['opsi_desain'];
     $catatan = mysqli_real_escape_string($koneksi, $_POST['catatan']);
     $pengiriman = $_POST['pengiriman'];
+    $metode_pembayaran = isset($_POST['metode_pembayaran']) ? mysqli_real_escape_string($koneksi, $_POST['metode_pembayaran']) : 'qris';
+
+    if ($opsi_desain_raw == 'custom_desain' || $opsi_desain_raw == 'custom') {
+        $opsi_desain = 'custom_desain';
+    } else {
+        $opsi_desain = 'upload_mandiri';
+    }
 
     $dir_upload = "public/uploads/file_desain/";
     if (!is_dir($dir_upload)) mkdir($dir_upload, 0777, true);
@@ -47,8 +54,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     mysqli_begin_transaction($koneksi);
 
     try {
-        $sql_pesanan = "INSERT INTO pesanan (nomor_invoice, id_user, metode_pengiriman, total_tagihan) 
-                        VALUES ('$nomor_invoice', $id_user, '$pengiriman', $total_tagihan)";
+        // Menyimpan metode_pembayaran ke dalam database
+        $sql_pesanan = "INSERT INTO pesanan (nomor_invoice, id_user, metode_pengiriman, metode_pembayaran, total_tagihan) 
+                        VALUES ('$nomor_invoice', $id_user, '$pengiriman', '$metode_pembayaran', $total_tagihan)";
         mysqli_query($koneksi, $sql_pesanan);
         
         $id_pesanan_baru = mysqli_insert_id($koneksi);
@@ -58,12 +66,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         mysqli_query($koneksi, $sql_detail);
 
         $sql_riwayat = "INSERT INTO riwayat_status (id_pesanan, status, keterangan, diupdate_oleh) 
-                        VALUES ($id_pesanan_baru, 'Menunggu Pembayaran', 'Pesanan baru dibuat, menunggu transfer dari pelanggan.', $id_user)";
+                        VALUES ($id_pesanan_baru, 'Menunggu Pembayaran', 'Pesanan baru dibuat dengan pembayaran via " . strtoupper($metode_pembayaran) . ".', $id_user)";
         mysqli_query($koneksi, $sql_riwayat);
 
         mysqli_commit($koneksi);
         
-        // POP-UP SWEETALERT2 SUKSES
         echo "
         <!DOCTYPE html>
         <html>
@@ -79,9 +86,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     text: 'Nomor Invoice Anda: $nomor_invoice',
                     icon: 'success',
                     confirmButtonColor: '#0088cc',
-                    confirmButtonText: 'Lihat Dashboard'
+                    confirmButtonText: 'Selesaikan Pembayaran'
                 }).then(() => {
-                    window.location.href = 'dashboard_pelanggan.php';
+                    window.location.href = 'detail_pesanan.php?id=$id_pesanan_baru';
                 });
             </script>
         </body>
