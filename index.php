@@ -129,7 +129,7 @@ $query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk 
                     </div>
                 </div>
                 <div class="col-lg-6 text-center">
-                    <img src="public/assets/images/banner.jpg" alt="Raster Grafik Digital Printing" class="img-fluid rounded-4 shadow-sm" style="width: 100%; height: auto; object-fit: cover;"> 
+                    <img src="public/images/banner.jpg" alt="Raster Grafik Digital Printing" class="img-fluid rounded-4 shadow-sm" style="width: 100%; height: auto; object-fit: cover;"> 
                 </div>
             </div>
         </div>
