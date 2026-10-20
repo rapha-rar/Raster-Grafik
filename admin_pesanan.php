@@ -211,14 +211,22 @@ $query_pesanan = mysqli_query($koneksi, "
                                     </td>
                                     
                                     <td>
-                                        <?php if (!empty($row['file_desain'])): ?>
-                                            <a href="public/uploads/file_desain/<?= $row['file_desain']; ?>" target="_blank" download class="btn btn-sm btn-primary rounded-pill px-3 mb-2 shadow-sm" style="font-size:0.8rem;">
-                                                <i class="bi bi-cloud-arrow-down-fill me-1"></i> Download File
-                                            </a>
-                                        <?php else: ?>
-                                            <span class="badge bg-info bg-opacity-10 text-info badge-custom mb-2">
-                                                <?= ($row['opsi_desain'] == 'custom_desain') ? '<i class="bi bi-palette-fill me-1"></i> Custom' : 'Tidak ada file'; ?>
+                                        <?php if (isset($row['opsi_desain']) && $row['opsi_desain'] == 'custom_desain') : ?>
+                                            <span class="badge bg-info text-dark mb-2 d-inline-block px-2 py-1 rounded-pill">
+                                                <i class="bi bi-palette me-1"></i> Request Custom Desain
                                             </span>
+                                        <?php else : ?>
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle mb-2 d-inline-block px-2 py-1 rounded-pill">
+                                                <i class="bi bi-file-earmark-check me-1"></i> Desain Mandiri
+                                            </span>
+                                        <?php endif; ?>
+
+                                        <?php if (!empty($row['file_desain'])): ?>
+                                            <div class="mb-2">
+                                                <a href="public/uploads/file_desain/<?= $row['file_desain']; ?>" target="_blank" download class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm py-1" style="font-size:0.75rem;">
+                                                    <i class="bi bi-download me-1"></i> Download File
+                                                </a>
+                                            </div>
                                         <?php endif; ?>
                                         
                                         <?php if (!empty($row['catatan_desain'])): ?>
@@ -313,6 +321,8 @@ $query_pesanan = mysqli_query($koneksi, "
                                                     <option value="pending" <?= $row['status_pesanan'] == 'pending' ? 'selected' : ''; ?>>Pending</option>
                                                     <option value="proses_desain" <?= $row['status_pesanan'] == 'proses_desain' ? 'selected' : ''; ?>>Proses Desain</option>
                                                     <option value="proses_cetak" <?= $row['status_pesanan'] == 'proses_cetak' ? 'selected' : ''; ?>>Proses Cetak</option>
+                                                    <option value="siap_diambil" <?= $row['status_pesanan'] == 'siap_diambil' ? 'selected' : ''; ?>>Siap Diambil</option>
+                                                    <option value="dikirim" <?= $row['status_pesanan'] == 'dikirim' ? 'selected' : ''; ?>>Dikirim</option>
                                                     <option value="selesai" <?= $row['status_pesanan'] == 'selesai' ? 'selected' : ''; ?>>Selesai</option>
                                                     <option value="dibatalkan" <?= $row['status_pesanan'] == 'dibatalkan' ? 'selected' : ''; ?>>Batal</option>
                                                 </select>
