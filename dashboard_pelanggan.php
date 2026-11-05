@@ -1,338 +1,94 @@
 <?php
 session_start();
 require_once 'config/database.php';
-
-if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'pelanggan') {
-    header("Location: login.php");
-    exit();
-}
+if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'pelanggan') { header("Location: login.php"); exit(); }
 
 $id_user = $_SESSION['id_user'];
-
-if (isset($_POST['update_profil'])) {
-    $nama_baru = mysqli_real_escape_string($koneksi, $_POST['nama']);
-    $no_wa_baru = mysqli_real_escape_string($koneksi, $_POST['no_whatsapp']);
-    $alamat_baru = mysqli_real_escape_string($koneksi, $_POST['alamat_lengkap']);
-
-    $query_update = "UPDATE users SET nama = '$nama_baru', no_whatsapp = '$no_wa_baru', alamat_lengkap = '$alamat_baru' WHERE id_user = $id_user";
-    if (mysqli_query($koneksi, $query_update)) {
-        $_SESSION['nama'] = $nama_baru;
-        echo "
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
-            <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
-            <style>body { font-family: 'Poppins', sans-serif; }</style>
-        </head>
-        <body style='background-color:#f4f7f6;'>
-            <script>
-                Swal.fire({
-                    title: 'Profil Diperbarui!',
-                    text: 'Data profil Anda telah berhasil disimpan.',
-                    icon: 'success',
-                    confirmButtonColor: '#0088cc',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.location.href = 'dashboard_pelanggan.php';
-                });
-            </script>
-        </body>
-        </html>";
-        exit();
-    }
-}
-
-$query_user = mysqli_query($koneksi, "SELECT * FROM users WHERE id_user = $id_user");
-$user = mysqli_fetch_assoc($query_user);
+mysqli_query($koneksi, "UPDATE pesanan SET status_pesanan = 'dibatalkan', status_pembayaran = 'kedaluwarsa' WHERE status_pembayaran = 'belum_bayar' AND status_pesanan = 'pending' AND waktu_pesan < (NOW() - INTERVAL 24 HOUR)");
 
 $query_pesanan = mysqli_query($koneksi, "SELECT * FROM pesanan WHERE id_user = $id_user ORDER BY waktu_pesan DESC");
-$data_pesanan = [];
-if ($query_pesanan) {
-    while ($row = mysqli_fetch_assoc($query_pesanan)) {
-        $data_pesanan[] = $row;
-    }
-}
+$user = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM users WHERE id_user = $id_user"));
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Pelanggan - Raster Grafik</title>
-    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
     <style>
-        :root { --biru-rg: #0088cc; --merah-rg: #cc0000; --bg-light: #f4f7f6; }
-        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-light); color: #333; }
-        .text-merah { color: var(--merah-rg); }
-        .text-biru { color: var(--biru-rg); }
+        :root { --color-1: #2373F4; --color-2: #578EF5; --color-3: #65D0F4; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            color: #0f172a; 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #ffffff 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
         
-        #page-loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
-            display: flex; justify-content: center; align-items: center; z-index: 99999;
-            opacity: 1; visibility: visible; transition: opacity 0.4s ease, visibility 0.4s ease;
-        }
-        #page-loader.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
-        .spinner-container { text-align: center; animation: pulseLoader 1.5s infinite ease-in-out; }
-        @keyframes pulseLoader { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+        .bg-shape1 { position: fixed; top: -10%; left: -10%; width: max(350px, 45vw); height: max(350px, 45vw); border-radius: 50%; background: var(--color-1); filter: blur(120px); opacity: 0.15; z-index: -1; }
+        .bg-shape2 { position: fixed; bottom: -10%; right: -10%; width: max(400px, 50vw); height: max(400px, 50vw); border-radius: 50%; background: var(--color-3); filter: blur(120px); opacity: 0.18; z-index: -1; }
 
-        .card-custom { border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .btn-primer { background-color: var(--merah-rg); color: white; font-weight: 500; border-radius: 8px; }
-        .btn-primer:hover { background-color: #aa0000; color: white; }
-        .table-custom th { background-color: #f8f9fa; font-weight: 600; color: #555; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; border-bottom: 2px solid #eee; }
-        .table-custom td { vertical-align: middle; font-size: 0.9rem; }
-        .badge-custom { padding: 0.5em 0.8em; font-weight: 500; border-radius: 30px; font-size: 0.75rem; }
-
-        .item-order-card {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 14px;
-            background-color: #ffffff;
-            margin-bottom: 12px;
-        }
+        .navbar { background: rgba(255, 255, 255, 0.85) !important; backdrop-filter: blur(25px); border-bottom: 1px solid rgba(226, 232, 240, 0.8); }
+        .card-glass { background: #ffffff; border: 1px solid rgba(87, 142, 245, 0.2); box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05); border-radius: 20px; }
+        
+        .badge-soft { padding: 8px 14px; border-radius: 50px; font-weight: 700; letter-spacing: 0.5px; font-size: 0.75rem;}
+        .table th { background: #f8fafc; color: #0f172a; font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        .table td { vertical-align: middle; border-bottom: 1px solid #f1f5f9; padding: 1rem 0.5rem; }
     </style>
 </head>
 <body>
-
-    <!-- OVERLAY LOADER -->
-    <div id="page-loader">
-        <div class="spinner-container">
-            <div class="spinner-border text-primary" role="status" style="width: 3.5rem; height: 3.5rem; border-width: 0.3em; color: #0088cc !important;"></div>
-            <div class="loader-logo mt-3 fw-bold fs-5">
-                <span style="color: #0088cc;">RASTER</span><span style="color: #cc0000;">GRAFIK</span>
-            </div>
-            <small class="text-muted d-block mt-1">Memuat halaman...</small>
-        </div>
-    </div>
-
-    <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg bg-white shadow-sm mb-4 py-3">
-        <div class="container">
-            <a class="navbar-brand fw-bold fs-4" href="index.php">
-                <span class="text-biru">RASTER</span><span class="text-merah">GRAFIK</span>
-            </a>
-            <div class="d-flex align-items-center gap-2">
-                <span class="me-2 text-muted d-none d-md-inline small"><i class="bi bi-person-circle me-1"></i> Halo, <strong class="text-dark"><?= htmlspecialchars($user['nama']); ?></strong></span>
-                <a href="logout.php" class="btn btn-outline-danger btn-sm px-3 rounded-pill">
-                    <i class="bi bi-box-arrow-right"></i> Keluar
-                </a>
+    <div class="bg-shape1"></div><div class="bg-shape2"></div>
+    <nav class="navbar py-3 mb-5 sticky-top">
+        <div class="container d-flex justify-content-between">
+            <a href="index.php" class="navbar-brand fw-bold text-dark m-0 fs-5"><i class="bi bi-arrow-left me-2"></i>Ke Beranda</a>
+            <div class="dropdown">
+                <button class="btn btn-light bg-white rounded-pill border fw-bold px-4 shadow-sm" data-bs-toggle="dropdown" style="color: var(--color-1);">
+                    <i class="bi bi-person-circle me-2"></i> <?= htmlspecialchars($user['nama']); ?>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 mt-2">
+                    <li><a class="dropdown-item py-2 fw-bold" href="profil_pelanggan.php"><i class="bi bi-gear text-secondary me-2"></i>Edit Profil</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item py-2 fw-bold text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Keluar Akun</a></li>
+                </ul>
             </div>
         </div>
     </nav>
 
     <div class="container pb-5">
-        <div class="row g-4">
-            
-            <!-- PROFIL USER -->
-            <div class="col-12 col-lg-4 col-xl-3">
-                <div class="card card-custom p-3">
-                    <div class="card-body text-center">
-                        <img src="https://ui-avatars.com/api/?name=<?= urlencode($user['nama']); ?>&background=0088cc&color=fff&size=100" class="rounded-circle shadow-sm mb-3" alt="Avatar">
-                        <h5 class="fw-bold mb-1 text-dark"><?= htmlspecialchars($user['nama']); ?></h5>
-                        <p class="text-muted small mb-3"><?= htmlspecialchars($user['email']); ?></p>
-                        
-                        <div class="text-start bg-light p-3 rounded-3 mb-3">
-                            <div class="d-flex mb-2 align-items-start">
-                                <i class="bi bi-whatsapp text-success me-2 mt-1"></i>
-                                <span class="small text-break"><?= htmlspecialchars($user['no_whatsapp']); ?></span>
-                            </div>
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-geo-alt-fill text-danger me-2 mt-1"></i>
-                                <span class="small text-break"><?= htmlspecialchars($user['alamat_lengkap']); ?></span>
-                            </div>
-                        </div>
-
-                        <button class="btn btn-outline-primary w-100 rounded-pill btn-sm fw-medium" data-bs-toggle="modal" data-bs-target="#modalEditProfil">
-                            <i class="bi bi-pencil-square me-1"></i> Edit Profil
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RIWAYAT PESANAN -->
-            <div class="col-12 col-lg-8 col-xl-9">
-                <div class="card card-custom p-3 p-md-4">
-                    
-                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-4 pb-3 border-bottom">
-                        <h4 class="fw-bold mb-0 text-dark fs-5 fs-md-4"><i class="bi bi-bag-check me-2 text-biru"></i>Riwayat Pesanan</h4>
-                        <a href="index.php" class="btn btn-light border btn-sm px-3 rounded-pill text-muted">
-                            <i class="bi bi-arrow-left me-1"></i> Kembali ke Beranda
-                        </a>
-                    </div>
-
-                    <?php if (count($data_pesanan) > 0) : ?>
-                        
-                        <!-- TAMPILAN MOBILE (KARTU) -->
-                        <div class="d-block d-md-none">
-                            <?php foreach ($data_pesanan as $row) : ?>
-                                <div class="item-order-card shadow-sm">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <div>
-                                            <span class="fw-bold text-dark d-block"><?= $row['nomor_invoice']; ?></span>
-                                            <small class="text-muted" style="font-size:0.75rem;"><i class="bi bi-clock me-1"></i><?= date('d M Y, H:i', strtotime($row['waktu_pesan'])); ?></small>
-                                        </div>
-                                        <span class="fw-bold text-merah fs-6">Rp <?= number_format($row['total_tagihan'], 0, ',', '.'); ?></span>
-                                    </div>
-                                    
-                                    <div class="d-flex flex-wrap gap-1 align-items-center my-2">
-                                        <?php if ($row['status_pembayaran'] == 'belum_bayar'): ?>
-                                            <span class="badge bg-danger bg-opacity-10 text-danger badge-custom"><i class="bi bi-exclamation-circle me-1"></i> Belum Bayar</span>
-                                        <?php elseif ($row['status_pembayaran'] == 'menunggu_verifikasi'): ?>
-                                            <span class="badge bg-warning bg-opacity-10 text-warning badge-custom"><i class="bi bi-hourglass-split me-1"></i> Menunggu Cek</span>
-                                        <?php else: ?>
-                                            <span class="badge bg-success bg-opacity-10 text-success badge-custom"><i class="bi bi-check-circle me-1"></i> Lunas</span>
-                                        <?php endif; ?>
-
-                                        <span class="badge bg-secondary badge-custom text-capitalize">
-                                            <?= str_replace('_', ' ', $row['status_pesanan']); ?>
-                                        </span>
-                                    </div>
-
-                                    <div class="mt-3 pt-2 border-top text-end">
-                                        <?php if ($row['status_pembayaran'] == 'belum_bayar'): ?>
-                                            <a href="detail_pesanan.php?id=<?= $row['id_pesanan']; ?>" class="btn btn-sm btn-primary rounded-pill w-100 shadow-sm">
-                                                <i class="bi bi-wallet2 me-1"></i> Bayar Sekarang
-                                            </a>
-                                        <?php else: ?>
-                                            <a href="detail_pesanan.php?id=<?= $row['id_pesanan']; ?>" class="btn btn-sm btn-outline-secondary rounded-pill w-100">
-                                                <i class="bi bi-eye me-1"></i> Lihat Detail
-                                            </a>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-
-                        <!-- TAMPILAN DESKTOP (TABEL) -->
-                        <div class="d-none d-md-block table-responsive">
-                            <table class="table table-hover table-custom align-middle mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>No. Invoice</th>
-                                        <th>Tanggal</th>
-                                        <th>Total Tagihan</th>
-                                        <th>Pembayaran</th>
-                                        <th>Status Pesanan</th>
-                                        <th class="text-end">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($data_pesanan as $row) : ?>
-                                        <tr>
-                                            <td class="fw-semibold text-dark"><?= $row['nomor_invoice']; ?></td>
-                                            <td class="text-muted small"><?= date('d M Y, H:i', strtotime($row['waktu_pesan'])); ?></td>
-                                            <td class="fw-bold text-merah">Rp <?= number_format($row['total_tagihan'], 0, ',', '.'); ?></td>
-                                            <td>
-                                                <?php if ($row['status_pembayaran'] == 'belum_bayar'): ?>
-                                                    <span class="badge bg-danger bg-opacity-10 text-danger badge-custom"><i class="bi bi-exclamation-circle me-1"></i> Belum Bayar</span>
-                                                <?php elseif ($row['status_pembayaran'] == 'menunggu_verifikasi'): ?>
-                                                    <span class="badge bg-warning bg-opacity-10 text-warning badge-custom"><i class="bi bi-hourglass-split me-1"></i> Menunggu Cek</span>
-                                                <?php else: ?>
-                                                    <span class="badge bg-success bg-opacity-10 text-success badge-custom"><i class="bi bi-check-circle me-1"></i> Lunas</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-secondary badge-custom text-capitalize">
-                                                    <?= str_replace('_', ' ', $row['status_pesanan']); ?>
-                                                </span>
-                                            </td>
-                                            <td class="text-end">
-                                                <?php if ($row['status_pembayaran'] == 'belum_bayar'): ?>
-                                                    <a href="detail_pesanan.php?id=<?= $row['id_pesanan']; ?>" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm">
-                                                        <i class="bi bi-wallet2 me-1"></i> Bayar
-                                                    </a>
-                                                <?php else: ?>
-                                                    <a href="detail_pesanan.php?id=<?= $row['id_pesanan']; ?>" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
-                                                        <i class="bi bi-eye me-1"></i> Detail
-                                                    </a>
-                                                <?php endif; ?>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-
-                    <?php else : ?>
-                        <div class="text-center py-5 text-muted px-2">
-                            <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary"></i>
-                            <p class="mb-0">Belum ada pesanan. Yuk mulai pesan sekarang!</p>
-                        </div>
-                    <?php endif; ?>
-
-                </div>
+        <h3 class="fw-bold mb-4 text-dark"><i class="bi bi-clock-history me-2" style="color: var(--color-1);"></i> Riwayat Pesanan Anda</h3>
+        <div class="card-glass p-4">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead><tr><th>Invoice & Tanggal</th><th>Total</th><th>Pembayaran</th><th>Status</th><th>Aksi</th></tr></thead>
+                    <tbody>
+                        <?php while($row = mysqli_fetch_assoc($query_pesanan)): ?>
+                            <tr>
+                                <td>
+                                    <strong class="d-block text-dark"><?= $row['nomor_invoice'] ?></strong>
+                                    <small class="text-muted fw-medium"><?= date('d M Y, H:i', strtotime($row['waktu_pesan'])) ?></small>
+                                </td>
+                                <td class="fw-bold" style="color: var(--color-1);">Rp <?= number_format($row['total_tagihan'],0,',','.') ?></td>
+                                <td>
+                                    <?php if($row['status_pembayaran'] == 'belum_bayar'): ?>
+                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 badge-soft">Belum Bayar</span>
+                                    <?php elseif($row['status_pembayaran'] == 'kedaluwarsa'): ?>
+                                        <span class="badge bg-secondary bg-opacity-25 text-dark border border-secondary border-opacity-50 badge-soft">Kedaluwarsa</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-50 badge-soft">Lunas / Menunggu</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><span class="badge bg-info bg-opacity-20 text-dark border border-info border-opacity-50 badge-soft text-capitalize"><?= str_replace('_',' ',$row['status_pesanan']) ?></span></td>
+                                <td><a href="detail_pesanan.php?id=<?= $row['id_pesanan'] ?>" class="btn btn-sm text-white rounded-pill px-4 fw-bold shadow-sm" style="background: var(--color-1); border: none;">Lihat Detail</a></td>
+                            </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-
-    <!-- MODAL EDIT PROFIL -->
-    <div class="modal fade" id="modalEditProfil" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow" style="border-radius: 16px;">
-                <form action="" method="POST">
-                    <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                        <h5 class="modal-title fw-bold"><i class="bi bi-person-lines-fill me-2 text-biru"></i>Edit Profil</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body px-4 pt-4">
-                        <div class="mb-3">
-                            <label class="form-label text-muted small fw-medium">Email Akun</label>
-                            <input type="email" class="form-control bg-light border-0 text-muted" value="<?= htmlspecialchars($user['email']); ?>" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-medium">Nama Lengkap</label>
-                            <input type="text" name="nama" class="form-control" value="<?= htmlspecialchars($user['nama']); ?>" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-medium">No. WhatsApp</label>
-                            <input type="text" name="no_whatsapp" class="form-control" value="<?= htmlspecialchars($user['no_whatsapp']); ?>" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-medium">Alamat Lengkap</label>
-                            <textarea name="alamat_lengkap" class="form-control" rows="3" required><?= htmlspecialchars($user['alamat_lengkap']); ?></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer border-top-0 px-4 pb-4 pt-2">
-                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" name="update_profil" class="btn btn-primer rounded-pill px-4 shadow-sm">Simpan</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        window.addEventListener('load', function() {
-            const loader = document.getElementById('page-loader');
-            if (loader) loader.classList.add('fade-out');
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const links = document.querySelectorAll('a[href]:not([target="_blank"]):not([href^="#"]):not([href^="javascript"]):not([download])');
-            const loader = document.getElementById('page-loader');
-
-            links.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    if (e.ctrlKey || e.metaKey) return;
-                    if (loader) loader.classList.remove('fade-out');
-                });
-            });
-
-            const forms = document.querySelectorAll('form');
-            forms.forEach(form => {
-                form.addEventListener('submit', function() {
-                    if (loader) loader.classList.remove('fade-out');
-                });
-            });
-        });
-    </script>
 </body>
 </html>
