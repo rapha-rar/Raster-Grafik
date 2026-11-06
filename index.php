@@ -20,7 +20,7 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raster Grafik - Digital Printing Modern</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,700..900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         :root { 
@@ -40,18 +40,15 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
 
         .logo-raster { color: var(--color-1); font-weight: 900; letter-spacing: -0.5px; }
         .logo-grafik { color: #0f172a; font-weight: 900; letter-spacing: -0.5px; }
-        .hero-title-main { color: #0f172a; font-weight: 800; }
-        .hero-title-accent { background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
         .section-title-black { color: #0f172a !important; font-weight: 800; }
 
         /* KARD KATALOG */
-        .card-glass { background: #ffffff; border: 1px solid rgba(87, 142, 245, 0.2); box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05); border-radius: 24px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; }
-        .card-glass:hover { transform: translateY(-6px); box-shadow: 0 15px 35px rgba(35, 115, 244, 0.15); border-color: var(--color-2); }
+        .card-glass { background: #ffffff; border: 1px solid rgba(87, 142, 245, 0.2); box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04); border-radius: 16px; transition: border-color 0.3s ease, box-shadow 0.3s ease; overflow: hidden; }
+        .card-glass:hover { box-shadow: 0 8px 24px rgba(35, 115, 244, 0.10); border-color: var(--color-2); }
         
-        .img-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 18px 18px 0 0; background: #f1f5f9; }
+        .img-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 14px 14px 0 0; background: #f1f5f9; }
         .img-katalog { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-glass:hover .img-katalog { transform: scale(1.08); } 
-        .badge-katalog { position: absolute; top: 12px; right: 12px; background: var(--grad-primary); color: #ffffff; font-size: 0.65rem; font-weight: 800; padding: 5px 12px; border-radius: 50px; box-shadow: 0 4px 10px rgba(35, 115, 244, 0.3); z-index: 10; }
+        .card-glass:hover .img-katalog { transform: scale(1.04); } 
         
         /* -------------------------------------------------------------
            DESAIN BARU CAROUSEL CONTROL (SLIDER PREMIUM)
@@ -126,23 +123,49 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
         .icon-btn .badge { border: 2px solid #ffffff; font-size: 0.6rem; background: var(--color-1); }
         .icon-btn:hover .badge { background: #0f172a; }
 
-        /* BANNER SLIDER */
-        .banner-slider { border-radius: 32px; overflow: hidden; border: 1px solid rgba(87, 142, 245, 0.25); box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06); margin-top: 24px; }
-        .banner-slide { height: 360px; display: flex; align-items: center; padding: 40px 64px 56px; position: relative; overflow: hidden; }
-        .banner-1 { background: linear-gradient(135deg, #ffffff 0%, #eaf2ff 100%); color: #0f172a; }
-        .banner-2 { background: var(--grad-primary); color: #ffffff; }
-        .banner-3 { background: linear-gradient(135deg, var(--color-3) 0%, var(--color-1) 100%); color: #ffffff; }
-        .banner-title { font-weight: 800; letter-spacing: -0.5px; font-size: clamp(1.5rem, 3.2vw, 2.4rem); line-height: 1.2; }
-        .banner-text { font-weight: 500; font-size: clamp(0.9rem, 1.6vw, 1.1rem); opacity: 0.85; max-width: 480px; }
-        .banner-img { width: 100%; max-height: 260px; object-fit: contain; mix-blend-mode: multiply; }
-        .banner-icon { position: absolute; right: 6%; top: 50%; transform: translateY(-50%); font-size: clamp(8rem, 20vw, 14rem); opacity: 0.18; line-height: 1; pointer-events: none; }
+        /* TIPOGRAFI TAMPILAN: huruf sempit tebal ala spanduk */
+        .font-display, .banner-title, .katalog-title { font-family: 'Archivo', 'Plus Jakarta Sans', sans-serif; font-stretch: 80%; font-weight: 800; letter-spacing: -0.01em; }
+
+        /* BANNER SLIDER: motif cetak (tanda potong, penggaris, color bar CMYK) */
+        .banner-slider { position: relative; border-radius: 28px; overflow: hidden; border: 1px solid rgba(87, 142, 245, 0.25); box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05); margin-top: 24px; }
+        .banner-slide { --tint: 15, 23, 42; position: relative; height: 360px; display: flex; align-items: center; padding: 40px 72px 64px; overflow: hidden; }
+        .banner-1 { background: #ffffff; color: #0f172a; }
+        .banner-2 { --tint: 255, 255, 255; background: #1a5bd6; color: #ffffff; }
+        .banner-3 { --tint: 255, 255, 255; background: #0a2a66; color: #ffffff; }
+
+        .banner-slide::before { content: ''; position: absolute; inset: 16px; pointer-events: none; color: rgba(var(--tint), 0.35);
+            background:
+                linear-gradient(currentColor, currentColor) left top / 20px 1px,
+                linear-gradient(currentColor, currentColor) left top / 1px 20px,
+                linear-gradient(currentColor, currentColor) right top / 20px 1px,
+                linear-gradient(currentColor, currentColor) right top / 1px 20px,
+                linear-gradient(currentColor, currentColor) left bottom / 20px 1px,
+                linear-gradient(currentColor, currentColor) left bottom / 1px 20px,
+                linear-gradient(currentColor, currentColor) right bottom / 20px 1px,
+                linear-gradient(currentColor, currentColor) right bottom / 1px 20px;
+            background-repeat: no-repeat; }
+        .banner-slide::after, .ruler { content: ''; pointer-events: none; color: rgba(var(--tint, 35, 115, 244), 0.4);
+            background:
+                repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 10px) left bottom / 100% 6px no-repeat,
+                repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 50px) left bottom / 100% 12px no-repeat; }
+        .banner-slide::after { position: absolute; left: 40px; right: 40px; bottom: 20px; height: 12px; }
+
+        .cmyk { position: absolute; top: 24px; left: 72px; display: flex; gap: 3px; z-index: 3; }
+        .cmyk i { width: 10px; height: 10px; box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.12); }
+        .cmyk i:nth-child(1) { background: #00aeef; } .cmyk i:nth-child(2) { background: #ec008c; }
+        .cmyk i:nth-child(3) { background: #fff200; } .cmyk i:nth-child(4) { background: #1f2937; }
+
+        .banner-title { font-size: clamp(2rem, 5vw, 3.4rem); line-height: 1.02; }
+        .banner-text { font-weight: 500; font-size: clamp(0.9rem, 1.6vw, 1.1rem); opacity: 0.88; max-width: 440px; }
+        .banner-img { width: 100%; max-height: 250px; object-fit: contain; mix-blend-mode: multiply; }
+        .banner-art { width: 100%; max-height: 250px; color: #ffffff; }
         .banner-slider .carousel-control-prev, .banner-slider .carousel-control-next { opacity: 1; width: 64px; }
-        .banner-slider .carousel-indicators { bottom: 14px; }
-        @media (max-width: 767.98px) {
-            .banner-slide { height: 360px; padding: 28px 24px 52px; }
-            .banner-slider { border-radius: 24px; }
-            .banner-slider .carousel-control-prev, .banner-slider .carousel-control-next { display: none; }
-        }
+        .banner-slider .carousel-indicators { bottom: 34px; }
+
+        /* KATALOG: judul + penggaris */
+        .katalog-head { display: flex; align-items: flex-end; gap: 24px; }
+        .katalog-title { font-size: clamp(1.6rem, 3.2vw, 2.2rem); line-height: 1; color: #0f172a; }
+        .katalog-head .ruler { flex: 1; height: 12px; margin-bottom: 4px; }
 
         .floating-wa { position: fixed; bottom: 25px; right: 25px; background: linear-gradient(135deg, #22c55e, #15803d); color: white; border-radius: 50px; padding: 14px 24px; box-shadow: 0 8px 25px rgba(34,197,94,0.4); z-index: 1000; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
         .floating-wa:hover { transform: translateY(-4px) scale(1.05); color: white; box-shadow: 0 12px 30px rgba(34,197,94,0.6); }
@@ -154,8 +177,9 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
 
         /* Tablet */
         @media (max-width: 991.98px) {
-            .banner-slide { height: 340px; padding: 36px 48px 52px; }
+            .banner-slide { height: 340px; padding: 36px 56px 60px; }
             .banner-slider .carousel-control-prev, .banner-slider .carousel-control-next { width: 52px; }
+            .cmyk { left: 56px; }
         }
 
         /* HP */
@@ -163,30 +187,33 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
             .navbar-brand.fs-3 { font-size: 1.4rem !important; }
             .icon-btn { width: 40px; height: 40px; font-size: 1.1rem; }
 
-            .banner-slide { height: 330px; padding: 26px 22px 50px; }
+            .banner-slider { border-radius: 22px; }
+            .banner-slide { height: 340px; padding: 40px 22px 58px; }
+            .banner-slide::before { inset: 10px; }
+            .banner-slide::after { left: 32px; right: 32px; bottom: 14px; }
+            .cmyk { left: 22px; top: 18px; }
+            .banner-slider .carousel-control-prev, .banner-slider .carousel-control-next { display: none; }
+            .banner-slider .carousel-indicators { bottom: 28px; }
             .banner-text { max-width: 100%; }
 
-
-            .card-glass { border-radius: 20px; }
-            .img-wrap { border-radius: 16px 16px 0 0; }
+            .card-glass { border-radius: 14px; }
+            .img-wrap { border-radius: 12px 12px 0 0; }
             .card-glass .p-3 { padding: 0.85rem !important; }
             .card-glass h5 { font-size: 1rem; }
             .card-glass .btn-grad-primary.btn-sm { font-size: 0.8rem; }
-
         }
 
         /* HP kecil (<= 380px) */
         @media (max-width: 380px) {
-            .banner-slide { height: 340px; }
-            .banner-title { font-size: 1.3rem; }
+            .banner-slide { height: 350px; }
+            .banner-title { font-size: 1.75rem; }
             .banner-text { font-size: 0.82rem; }
         }
 
-        /* Layar sentuh: tidak ada hover, jadi panah slider foto produk selalu tampil */
+        /* Layar sentuh: tanpa hover, panah slider foto produk selalu tampil */
         @media (hover: none) {
             .carousel-control-prev, .carousel-control-next { opacity: 1; }
             .carousel-control-prev-icon, .carousel-control-next-icon { width: 28px; height: 28px; }
-            .card-glass:hover { transform: none; }
             .card-glass:hover .img-katalog { transform: none; }
         }
 
@@ -230,6 +257,8 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
 
     <div class="container">
         <div id="bannerSlider" class="banner-slider carousel slide" data-bs-ride="carousel" data-bs-interval="5000" aria-label="Banner promosi">
+            <div class="cmyk" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
             <div class="carousel-indicators">
                 <button type="button" data-bs-target="#bannerSlider" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Banner 1"></button>
                 <button type="button" data-bs-target="#bannerSlider" data-bs-slide-to="1" aria-label="Banner 2"></button>
@@ -242,9 +271,9 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
                     <div class="banner-slide banner-1">
                         <div class="row align-items-center w-100 g-3">
                             <div class="col-md-6">
-                                <h2 class="banner-title mb-3">Cetak Banner &amp; Spanduk <span class="hero-title-accent">Berkualitas</span></h2>
-                                <p class="banner-text mb-4">Hasil tajam untuk promosi usaha Anda, dicetak dengan mesin digital printing modern.</p>
-                                <a href="#katalog" class="btn btn-grad-primary px-4 py-2">Lihat Katalog <i class="bi bi-arrow-down ms-1"></i></a>
+                                <h2 class="banner-title mb-3">Cetak banner dan spanduk yang tajam</h2>
+                                <p class="banner-text mb-4">Dicetak dengan mesin digital printing modern, siap untuk promosi usaha Anda.</p>
+                                <a href="#katalog" class="btn btn-grad-primary px-4 py-2">Lihat katalog</a>
                             </div>
                             <div class="col-md-6 d-none d-md-block text-center">
                                 <img src="public/images/banner.jpg" class="banner-img" alt="Mesin digital printing" onerror="this.style.display='none'">
@@ -256,11 +285,22 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
                 <!-- SLIDE 2 -->
                 <div class="carousel-item">
                     <div class="banner-slide banner-2">
-                        <i class="bi bi-aspect-ratio banner-icon" aria-hidden="true"></i>
-                        <div class="position-relative">
-                            <h2 class="banner-title mb-3">Custom Ukuran<br>Sesuai Kebutuhan</h2>
-                            <p class="banner-text mb-4">Tentukan panjang dan lebar sendiri, harga dihitung otomatis per meter.</p>
-                            <a href="#katalog" class="btn btn-light rounded-pill fw-bold px-4 py-2" style="color: var(--color-1);">Mulai Pesan</a>
+                        <div class="row align-items-center w-100 g-3">
+                            <div class="col-md-6">
+                                <h2 class="banner-title mb-3">Ukuran bebas, harga per meter</h2>
+                                <p class="banner-text mb-4">Isi panjang dan lebar sendiri. Harga dihitung otomatis.</p>
+                                <a href="#katalog" class="btn btn-light rounded-pill fw-bold px-4 py-2" style="color: var(--color-1);">Mulai pesan</a>
+                            </div>
+                            <div class="col-md-6 d-none d-md-block">
+                                <svg class="banner-art" viewBox="0 0 360 230" fill="none" stroke="currentColor" stroke-width="1.5" font-family="Plus Jakarta Sans, sans-serif" aria-hidden="true">
+                                    <rect x="56" y="52" width="270" height="130" fill="rgba(255,255,255,.14)" stroke-width="2"/>
+                                    <path d="M56 30H326M56 24V36M326 24V36"/>
+                                    <text x="191" y="20" text-anchor="middle" fill="currentColor" stroke="none" font-size="13" font-weight="600">panjang</text>
+                                    <path d="M34 52V182M28 52H40M28 182H40"/>
+                                    <text transform="rotate(-90 18 117)" x="18" y="117" text-anchor="middle" fill="currentColor" stroke="none" font-size="13" font-weight="600">lebar</text>
+                                    <text x="191" y="122" text-anchor="middle" fill="currentColor" stroke="none" font-size="15" font-weight="700">p × l = luas (m²)</text>
+                                </svg>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -268,11 +308,22 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
                 <!-- SLIDE 3 -->
                 <div class="carousel-item">
                     <div class="banner-slide banner-3">
-                        <i class="bi bi-truck banner-icon" aria-hidden="true"></i>
-                        <div class="position-relative">
-                            <h2 class="banner-title mb-3">Siap Kirim via Ojol</h2>
-                            <p class="banner-text mb-4">Pesanan selesai langsung diantar ke alamat Anda, praktis tanpa perlu ke toko.</p>
-                            <a href="https://wa.me/6281234567890?text=Halo%20Admin..." target="_blank" class="btn btn-wa px-4 py-2"><i class="bi bi-whatsapp me-2"></i>Tanya Admin</a>
+                        <div class="row align-items-center w-100 g-3">
+                            <div class="col-md-6">
+                                <h2 class="banner-title mb-3">Pesanan diantar ke alamat Anda</h2>
+                                <p class="banner-text mb-4">Selesai dicetak, langsung dikirim via ojol. Tanpa perlu ke toko.</p>
+                                <a href="https://wa.me/6281234567890?text=Halo%20Admin..." target="_blank" class="btn btn-wa px-4 py-2"><i class="bi bi-whatsapp me-2"></i>Tanya admin</a>
+                            </div>
+                            <div class="col-md-6 d-none d-md-block">
+                                <svg class="banner-art" viewBox="0 0 360 230" fill="none" stroke="currentColor" stroke-width="1.5" font-family="Plus Jakarta Sans, sans-serif" aria-hidden="true">
+                                    <path d="M60 170C130 60 210 200 292 70" stroke-width="2" stroke-dasharray="6 7"/>
+                                    <circle cx="60" cy="170" r="7" fill="currentColor" stroke="none"/>
+                                    <circle cx="292" cy="70" r="11" fill="#65D0F4" stroke="none"/>
+                                    <circle cx="292" cy="70" r="4" fill="#0a2a66" stroke="none"/>
+                                    <text x="60" y="199" text-anchor="middle" fill="currentColor" stroke="none" font-size="13" font-weight="600">Toko</text>
+                                    <text x="292" y="44" text-anchor="middle" fill="currentColor" stroke="none" font-size="13" font-weight="600">Alamat Anda</text>
+                                </svg>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -290,11 +341,9 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
     </div>
 
     <section id="katalog" class="py-4 container pb-5">
-        <div class="d-flex align-items-center mb-4">
-            <h4 class="section-title-black m-0 fs-5 fs-md-4">
-                <i class="bi bi-stars me-2" style="color: var(--color-1);"></i><?= ($search != '') ? "Hasil pencarian: '$search'" : "Katalog Unggulan"; ?>
-            </h4>
-            <div class="ms-4 flex-grow-1 rounded-pill" style="height: 3px; background: linear-gradient(90deg, var(--color-2) 0%, transparent 100%); opacity: 0.5;"></div>
+        <div class="katalog-head mb-4">
+            <h2 class="katalog-title m-0"><?= ($search != '') ? 'Hasil pencarian: ' . htmlspecialchars($_GET['q']) : 'Katalog unggulan'; ?></h2>
+            <div class="ruler" aria-hidden="true"></div>
         </div>
         
         <div class="row g-3 g-md-4">
@@ -304,7 +353,6 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
                         <div class="card-glass h-100 d-flex flex-column">
                             
                             <div id="carouselProduk<?= $produk['id_produk'] ?>" class="img-wrap carousel slide" data-bs-ride="false" data-bs-interval="false">
-                                <span class="badge-katalog"><i class="bi bi-tag-fill me-1"></i> Custom</span>
                                 
                                 <div class="carousel-inner h-100">
                                     <?php 
@@ -381,7 +429,7 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
         </div>
     </section>
 
-    <a href="https://wa.me/6282249021569?text=Halo Admin..." class="floating-wa" target="_blank"><i class="bi bi-whatsapp fs-4"></i><span class="d-none d-md-inline">Chat Admin</span></a>
+    <a href="https://wa.me/6281234567890?text=Halo%20Admin..." class="floating-wa" target="_blank"><i class="bi bi-whatsapp fs-4"></i><span class="d-none d-md-inline">Chat Admin</span></a>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
