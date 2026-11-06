@@ -41,6 +41,11 @@ $user = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM users WHERE id_
         .card-glass { background: #ffffff; border: 1px solid rgba(87, 142, 245, 0.2); box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05); border-radius: 24px; overflow: hidden; }
         .btn-grad-primary { background: var(--grad-primary); color: white; border: none; border-radius: 50px; font-weight: 700; box-shadow: 0 4px 15px rgba(35, 115, 244, 0.3); transition: 0.3s; }
         .btn-grad-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(35, 115, 244, 0.5); color: white; }
+        /* Animasi tombol header (sama dengan ikon keranjang di index.php) */
+        .btn-nav { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-nav:hover, .btn-nav:focus-visible, .btn-nav.show { background: var(--grad-primary) !important; color: #ffffff !important; border-color: transparent !important; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(35, 115, 244, 0.35) !important; }
+        .btn-nav:focus-visible { outline: 3px solid rgba(101, 208, 244, 0.6); outline-offset: 2px; }
+
         .floating-wa { position: fixed; bottom: 25px; right: 25px; background: linear-gradient(135deg, #22c55e, #15803d); color: white; border-radius: 50px; padding: 14px 24px; box-shadow: 0 8px 25px rgba(34,197,94,0.4); z-index: 1000; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
         .floating-wa:hover { transform: translateY(-4px) scale(1.05); color: white; box-shadow: 0 12px 30px rgba(34,197,94,0.6); }
         
@@ -53,9 +58,9 @@ $user = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM users WHERE id_
     <div class="bg-shape1"></div><div class="bg-shape2"></div>
     <nav class="navbar navbar-expand-lg py-3 sticky-top">
         <div class="container d-flex justify-content-between">
-            <a href="index.php" class="btn btn-light bg-white rounded-pill btn-sm px-4 fw-bold shadow-sm border" style="color: var(--color-1);"><i class="bi bi-arrow-left me-2"></i>Kembali</a>
+            <a href="index.php" class="btn btn-nav btn-light bg-white rounded-pill btn-sm px-4 fw-bold shadow-sm border" style="color: var(--color-1);"><i class="bi bi-arrow-left me-2"></i>Kembali</a>
             <div class="dropdown">
-                <button class="btn btn-light bg-white rounded-pill btn-sm border fw-bold px-4 shadow-sm" data-bs-toggle="dropdown" style="color: var(--color-1);">
+                <button class="btn btn-nav btn-light bg-white rounded-pill btn-sm border fw-bold px-4 shadow-sm" data-bs-toggle="dropdown" style="color: var(--color-1);">
                     <i class="bi bi-person-circle me-2"></i> <?= htmlspecialchars($user['nama']); ?>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 mt-2">

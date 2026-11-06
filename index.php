@@ -27,6 +27,8 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
             --color-1: #2373F4; --color-2: #578EF5; --color-3: #65D0F4;
             --grad-primary: linear-gradient(135deg, var(--color-1) 0%, var(--color-2) 100%); 
         }
+        html { scroll-behavior: smooth; }
+        #katalog { scroll-margin-top: 90px; }
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; color: #0f172a; 
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #ffffff 100%);
@@ -41,7 +43,6 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
         .hero-title-main { color: #0f172a; font-weight: 800; }
         .hero-title-accent { background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
         .section-title-black { color: #0f172a !important; font-weight: 800; }
-        .hero-section { background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 247, 255, 0.85) 100%); backdrop-filter: blur(15px); border: 1px solid rgba(87, 142, 245, 0.25); border-radius: 32px; padding: 60px 24px; box-shadow: 0 20px 40px rgba(15, 23, 42, 0.04); margin: 30px 0; }
 
         /* KARD KATALOG */
         .card-glass { background: #ffffff; border: 1px solid rgba(87, 142, 245, 0.2); box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05); border-radius: 24px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; }
@@ -125,8 +126,74 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
         .icon-btn .badge { border: 2px solid #ffffff; font-size: 0.6rem; background: var(--color-1); }
         .icon-btn:hover .badge { background: #0f172a; }
 
+        /* BANNER SLIDER */
+        .banner-slider { border-radius: 32px; overflow: hidden; border: 1px solid rgba(87, 142, 245, 0.25); box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06); margin-top: 24px; }
+        .banner-slide { height: 360px; display: flex; align-items: center; padding: 40px 64px 56px; position: relative; overflow: hidden; }
+        .banner-1 { background: linear-gradient(135deg, #ffffff 0%, #eaf2ff 100%); color: #0f172a; }
+        .banner-2 { background: var(--grad-primary); color: #ffffff; }
+        .banner-3 { background: linear-gradient(135deg, var(--color-3) 0%, var(--color-1) 100%); color: #ffffff; }
+        .banner-title { font-weight: 800; letter-spacing: -0.5px; font-size: clamp(1.5rem, 3.2vw, 2.4rem); line-height: 1.2; }
+        .banner-text { font-weight: 500; font-size: clamp(0.9rem, 1.6vw, 1.1rem); opacity: 0.85; max-width: 480px; }
+        .banner-img { width: 100%; max-height: 260px; object-fit: contain; mix-blend-mode: multiply; }
+        .banner-icon { position: absolute; right: 6%; top: 50%; transform: translateY(-50%); font-size: clamp(8rem, 20vw, 14rem); opacity: 0.18; line-height: 1; pointer-events: none; }
+        .banner-slider .carousel-control-prev, .banner-slider .carousel-control-next { opacity: 1; width: 64px; }
+        .banner-slider .carousel-indicators { bottom: 14px; }
+        @media (max-width: 767.98px) {
+            .banner-slide { height: 360px; padding: 28px 24px 52px; }
+            .banner-slider { border-radius: 24px; }
+            .banner-slider .carousel-control-prev, .banner-slider .carousel-control-next { display: none; }
+        }
+
         .floating-wa { position: fixed; bottom: 25px; right: 25px; background: linear-gradient(135deg, #22c55e, #15803d); color: white; border-radius: 50px; padding: 14px 24px; box-shadow: 0 8px 25px rgba(34,197,94,0.4); z-index: 1000; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
         .floating-wa:hover { transform: translateY(-4px) scale(1.05); color: white; box-shadow: 0 12px 30px rgba(34,197,94,0.6); }
+        .btn-wa { background: linear-gradient(135deg, #22c55e, #15803d); color: white; border: none; border-radius: 50px; font-weight: 700; box-shadow: 0 8px 25px rgba(34,197,94,0.4); transition: 0.3s; }
+        .btn-wa:hover { transform: translateY(-4px) scale(1.05); color: white; box-shadow: 0 12px 30px rgba(34,197,94,0.6); }
+
+        /* ================= RESPONSIVE ================= */
+        .navbar > .container { min-height: 52px; }
+
+        /* Tablet */
+        @media (max-width: 991.98px) {
+            .banner-slide { height: 340px; padding: 36px 48px 52px; }
+            .banner-slider .carousel-control-prev, .banner-slider .carousel-control-next { width: 52px; }
+        }
+
+        /* HP */
+        @media (max-width: 767.98px) {
+            .navbar-brand.fs-3 { font-size: 1.4rem !important; }
+            .icon-btn { width: 40px; height: 40px; font-size: 1.1rem; }
+
+            .banner-slide { height: 330px; padding: 26px 22px 50px; }
+            .banner-text { max-width: 100%; }
+
+
+            .card-glass { border-radius: 20px; }
+            .img-wrap { border-radius: 16px 16px 0 0; }
+            .card-glass .p-3 { padding: 0.85rem !important; }
+            .card-glass h5 { font-size: 1rem; }
+            .card-glass .btn-grad-primary.btn-sm { font-size: 0.8rem; }
+
+        }
+
+        /* HP kecil (<= 380px) */
+        @media (max-width: 380px) {
+            .banner-slide { height: 340px; }
+            .banner-title { font-size: 1.3rem; }
+            .banner-text { font-size: 0.82rem; }
+        }
+
+        /* Layar sentuh: tidak ada hover, jadi panah slider foto produk selalu tampil */
+        @media (hover: none) {
+            .carousel-control-prev, .carousel-control-next { opacity: 1; }
+            .carousel-control-prev-icon, .carousel-control-next-icon { width: 28px; height: 28px; }
+            .card-glass:hover { transform: none; }
+            .card-glass:hover .img-katalog { transform: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            * { transition: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -162,13 +229,67 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
     </div>
 
     <div class="container">
-        <div class="hero-section text-center">
-            <h1 class="display-5 mb-3" style="letter-spacing: -1px;"><span class="hero-title-main">Cetak Lebih Cepat, Hasil</span> <span class="hero-title-accent">Memikat!</span></h1>
-            <p class="text-dark opacity-75 lead mb-0 fw-medium fs-6 fs-md-5">Solusi percetakan digital modern, custom ukuran, dan siap kirim via Ojol.</p>
+        <div id="bannerSlider" class="banner-slider carousel slide" data-bs-ride="carousel" data-bs-interval="5000" aria-label="Banner promosi">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#bannerSlider" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Banner 1"></button>
+                <button type="button" data-bs-target="#bannerSlider" data-bs-slide-to="1" aria-label="Banner 2"></button>
+                <button type="button" data-bs-target="#bannerSlider" data-bs-slide-to="2" aria-label="Banner 3"></button>
+            </div>
+
+            <div class="carousel-inner">
+                <!-- SLIDE 1 -->
+                <div class="carousel-item active">
+                    <div class="banner-slide banner-1">
+                        <div class="row align-items-center w-100 g-3">
+                            <div class="col-md-6">
+                                <h2 class="banner-title mb-3">Cetak Banner &amp; Spanduk <span class="hero-title-accent">Berkualitas</span></h2>
+                                <p class="banner-text mb-4">Hasil tajam untuk promosi usaha Anda, dicetak dengan mesin digital printing modern.</p>
+                                <a href="#katalog" class="btn btn-grad-primary px-4 py-2">Lihat Katalog <i class="bi bi-arrow-down ms-1"></i></a>
+                            </div>
+                            <div class="col-md-6 d-none d-md-block text-center">
+                                <img src="public/images/banner.jpg" class="banner-img" alt="Mesin digital printing" onerror="this.style.display='none'">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 2 -->
+                <div class="carousel-item">
+                    <div class="banner-slide banner-2">
+                        <i class="bi bi-aspect-ratio banner-icon" aria-hidden="true"></i>
+                        <div class="position-relative">
+                            <h2 class="banner-title mb-3">Custom Ukuran<br>Sesuai Kebutuhan</h2>
+                            <p class="banner-text mb-4">Tentukan panjang dan lebar sendiri, harga dihitung otomatis per meter.</p>
+                            <a href="#katalog" class="btn btn-light rounded-pill fw-bold px-4 py-2" style="color: var(--color-1);">Mulai Pesan</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 3 -->
+                <div class="carousel-item">
+                    <div class="banner-slide banner-3">
+                        <i class="bi bi-truck banner-icon" aria-hidden="true"></i>
+                        <div class="position-relative">
+                            <h2 class="banner-title mb-3">Siap Kirim via Ojol</h2>
+                            <p class="banner-text mb-4">Pesanan selesai langsung diantar ke alamat Anda, praktis tanpa perlu ke toko.</p>
+                            <a href="https://wa.me/6281234567890?text=Halo%20Admin..." target="_blank" class="btn btn-wa px-4 py-2"><i class="bi bi-whatsapp me-2"></i>Tanya Admin</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#bannerSlider" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Sebelumnya</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#bannerSlider" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Berikutnya</span>
+            </button>
         </div>
     </div>
 
-    <section class="py-4 container pb-5">
+    <section id="katalog" class="py-4 container pb-5">
         <div class="d-flex align-items-center mb-4">
             <h4 class="section-title-black m-0 fs-5 fs-md-4">
                 <i class="bi bi-stars me-2" style="color: var(--color-1);"></i><?= ($search != '') ? "Hasil pencarian: '$search'" : "Katalog Unggulan"; ?>
@@ -260,7 +381,7 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
         </div>
     </section>
 
-    <a href="https://wa.me/6281234567890?text=Halo%20Admin..." class="floating-wa" target="_blank"><i class="bi bi-whatsapp fs-4"></i><span class="d-none d-md-inline">Chat Admin</span></a>
+    <a href="https://wa.me/6282249021569?text=Halo Admin..." class="floating-wa" target="_blank"><i class="bi bi-whatsapp fs-4"></i><span class="d-none d-md-inline">Chat Admin</span></a>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
