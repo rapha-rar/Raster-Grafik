@@ -118,6 +118,13 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
         .btn-grad-primary { background: var(--grad-primary); color: white; border: none; border-radius: 50px; font-weight: 700; box-shadow: 0 4px 15px rgba(35, 115, 244, 0.3); transition: 0.3s; }
         .btn-grad-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(35, 115, 244, 0.5); color: white; }
 
+        /* TOMBOL IKON HEADER (keranjang & akun) */
+        .icon-btn { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #ffffff; color: var(--color-1); font-size: 1.2rem; text-decoration: none; border: 1px solid rgba(87, 142, 245, 0.25); box-shadow: 0 4px 12px rgba(35, 115, 244, 0.12); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .icon-btn:hover { background: var(--grad-primary); color: #ffffff; border-color: transparent; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(35, 115, 244, 0.35); }
+        .icon-btn:focus-visible { outline: 3px solid rgba(101, 208, 244, 0.6); outline-offset: 2px; }
+        .icon-btn .badge { border: 2px solid #ffffff; font-size: 0.6rem; background: var(--color-1); }
+        .icon-btn:hover .badge { background: #0f172a; }
+
         .floating-wa { position: fixed; bottom: 25px; right: 25px; background: linear-gradient(135deg, #22c55e, #15803d); color: white; border-radius: 50px; padding: 14px 24px; box-shadow: 0 8px 25px rgba(34,197,94,0.4); z-index: 1000; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
         .floating-wa:hover { transform: translateY(-4px) scale(1.05); color: white; box-shadow: 0 12px 30px rgba(34,197,94,0.6); }
     </style>
@@ -135,11 +142,11 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
             </form>
             <div class="d-flex align-items-center gap-3">
                 <?php if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'): ?>
-                    <a href="keranjang.php" class="position-relative text-dark fs-5 text-decoration-none">
+                    <a href="keranjang.php" class="icon-btn position-relative" title="Keranjang" aria-label="Keranjang Belanja">
                         <i class="bi bi-cart3"></i>
-                        <?php if($jumlah_keranjang > 0): ?><span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background: var(--color-1); font-size:0.6rem;"><?= $jumlah_keranjang; ?></span><?php endif; ?>
+                        <?php if($jumlah_keranjang > 0): ?><span class="position-absolute top-0 start-100 translate-middle badge rounded-pill"><?= $jumlah_keranjang; ?></span><?php endif; ?>
                     </a>
-                    <a href="dashboard_pelanggan.php" class="btn btn-light bg-white rounded-pill btn-sm px-4 fw-bold shadow-sm border ms-2" style="color: var(--color-1);">Dashboard</a>
+                    <a href="dashboard_pelanggan.php" class="icon-btn" title="Dashboard" aria-label="Dashboard"><i class="bi bi-person-fill"></i></a>
                 <?php else: ?>
                     <a href="login.php" class="btn btn-grad-primary btn-sm px-4">Masuk / Daftar</a>
                 <?php endif; ?>
