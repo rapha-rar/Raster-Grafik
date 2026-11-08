@@ -1,81 +1,63 @@
 <?php
 session_start();
 require_once 'config/database.php';
-
-// Cek apakah user adalah admin
 if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit();
 }
+$q_kat = mysqli_query($koneksi, "SELECT * FROM kategori");
+$data_kat = [];
+while($k = mysqli_fetch_assoc($q_kat)) $data_kat[] = $k;
 
-// ---------------------------------------------------------
-// 1. PROSES HAPUS SATU GAMBAR SPESIFIK (VIA ICON DELETE)
-// ---------------------------------------------------------
 if(isset($_GET['hapus_gambar']) && isset($_GET['id_produk'])){
     $img_to_delete = mysqli_real_escape_string($koneksi, $_GET['hapus_gambar']);
     $id_prod = intval($_GET['id_produk']);
-
     $q_img = mysqli_query($koneksi, "SELECT gambar_katalog FROM produk WHERE id_produk = $id_prod");
     if($d_img = mysqli_fetch_assoc($q_img)) {
         $gbr_raw = $d_img['gambar_katalog'];
         $gbr_list = [];
         $dec = json_decode($gbr_raw, true);
-        
         if (is_array($dec)) { $gbr_list = $dec; }
         else if (strpos($gbr_raw, ',') !== false) { $gbr_list = explode(',', $gbr_raw); }
         else if (!empty($gbr_raw)) { $gbr_list = [$gbr_raw]; }
-
         if (($key = array_search($img_to_delete, $gbr_list)) !== false) {
             unset($gbr_list[$key]);
             $file_path = 'public/uploads/produk/' . $img_to_delete;
             if (file_exists($file_path) && is_file($file_path)) unlink($file_path);
-
             $gbr_list = array_values($gbr_list);
             $json_baru = empty($gbr_list) ? '' : json_encode($gbr_list, JSON_UNESCAPED_UNICODE);
             $json_baru_escaped = mysqli_real_escape_string($koneksi, $json_baru);
             mysqli_query($koneksi, "UPDATE produk SET gambar_katalog = '$json_baru_escaped' WHERE id_produk = $id_prod");
-            
             echo "<script>alert('Satu gambar berhasil dihapus!'); window.location='admin_produk.php';</script>";
             exit();
         }
     }
 }
-
-// ---------------------------------------------------------
-// 2. PROSES TAMBAH PRODUK BARU
-// ---------------------------------------------------------
 if (isset($_POST['simpan_produk'])) {
+    $id_kategori = intval($_POST['id_kategori']);
     $nama = mysqli_real_escape_string($koneksi, $_POST['nama_produk']);
     $deskripsi = mysqli_real_escape_string($koneksi, $_POST['deskripsi']);
     $harga = $_POST['harga_dasar'];
     $tipe = $_POST['tipe_harga'];
-
-    // PROSES SPESIFIKASI DINAMIS (VERSI TABEL INPUT)
     $spesifikasi_array = [];
     if (isset($_POST['kategori_nama']) && is_array($_POST['kategori_nama'])) {
         foreach ($_POST['kategori_nama'] as $index => $kat_nama) {
             $kat_nama = trim($kat_nama);
             $list_opsi = [];
-            
-            // Ambil array opsi berdasarkan index kategori yang sama
             if (isset($_POST['opsi_nama'][$index]) && is_array($_POST['opsi_nama'][$index])) {
                 foreach ($_POST['opsi_nama'][$index] as $opt) {
                     $opt = trim($opt);
                     if (!empty($opt)) {
-                        $list_opsi[] = $opt; // Masukkan ke list jika tidak kosong
+                        $list_opsi[] = $opt;
                     }
                 }
             }
-            
-            // Jika kategori dan opsi ada isinya, simpan
             if (!empty($kat_nama) && !empty($list_opsi)) {
                 $spesifikasi_array[$kat_nama] = $list_opsi;
             }
         }
     }
     $json_spesifikasi = mysqli_real_escape_string($koneksi, json_encode($spesifikasi_array, JSON_UNESCAPED_UNICODE));
-
-    // UPLOAD GAMBAR
     $gambar_array = [];
     if(isset($_FILES['gambar_katalog'])){
         $countfiles = count($_FILES['gambar_katalog']['name']);
@@ -90,31 +72,22 @@ if (isset($_POST['simpan_produk'])) {
         }
     }
     $json_gambar = empty($gambar_array) ? '' : json_encode($gambar_array, JSON_UNESCAPED_UNICODE);
-
-    $query = "INSERT INTO produk (nama_produk, deskripsi, harga_dasar, tipe_harga, gambar_katalog, spesifikasi_json) 
-              VALUES ('$nama', '$deskripsi', '$harga', '$tipe', '$json_gambar', '$json_spesifikasi')";
-              
+    $query = "INSERT INTO produk (id_kategori, nama_produk, deskripsi, harga_dasar, tipe_harga, gambar_katalog, spesifikasi_json) VALUES ($id_kategori, '$nama', '$deskripsi', '$harga', '$tipe', '$json_gambar', '$json_spesifikasi')";
     if(mysqli_query($koneksi, $query)){ echo "<script>alert('Produk berhasil ditambahkan!'); window.location='admin_produk.php';</script>"; } 
     else { echo "<script>alert('Gagal menambah produk!'); window.history.back();</script>"; }
 }
-
-// ---------------------------------------------------------
-// 3. PROSES UPDATE (EDIT) PRODUK
-// ---------------------------------------------------------
 if (isset($_POST['update_produk'])) {
     $id_produk = intval($_POST['id_produk']);
+    $id_kategori = intval($_POST['id_kategori']);
     $nama = mysqli_real_escape_string($koneksi, $_POST['nama_produk']);
     $deskripsi = mysqli_real_escape_string($koneksi, $_POST['deskripsi']);
     $harga = $_POST['harga_dasar'];
     $tipe = $_POST['tipe_harga'];
-
-    // PROSES SPESIFIKASI DINAMIS (VERSI TABEL INPUT)
     $spesifikasi_array = [];
     if (isset($_POST['kategori_nama']) && is_array($_POST['kategori_nama'])) {
         foreach ($_POST['kategori_nama'] as $index => $kat_nama) {
             $kat_nama = trim($kat_nama);
             $list_opsi = [];
-            
             if (isset($_POST['opsi_nama'][$index]) && is_array($_POST['opsi_nama'][$index])) {
                 foreach ($_POST['opsi_nama'][$index] as $opt) {
                     $opt = trim($opt);
@@ -127,18 +100,14 @@ if (isset($_POST['update_produk'])) {
         }
     }
     $json_spesifikasi = mysqli_real_escape_string($koneksi, json_encode($spesifikasi_array, JSON_UNESCAPED_UNICODE));
-
-    // AMBIL GAMBAR LAMA DARI DB UNTUK DIGABUNG
     $q_old = mysqli_query($koneksi, "SELECT gambar_katalog FROM produk WHERE id_produk = $id_produk");
     $d_old = mysqli_fetch_assoc($q_old);
     $gambar_lama_raw = $d_old['gambar_katalog'];
-    
     $gambar_final_array = [];
     $decoded = json_decode($gambar_lama_raw, true);
     if (is_array($decoded)) { $gambar_final_array = $decoded; }
     else if (strpos($gambar_lama_raw, ',') !== false) { $gambar_final_array = explode(',', $gambar_lama_raw); }
     else if (!empty($gambar_lama_raw)) { $gambar_final_array = [$gambar_lama_raw]; }
-
     if(isset($_FILES['gambar_katalog_baru']) && !empty($_FILES['gambar_katalog_baru']['name'][0])){
         $countfiles = count($_FILES['gambar_katalog_baru']['name']);
         for($i = 0; $i < $countfiles; $i++){
@@ -153,22 +122,12 @@ if (isset($_POST['update_produk'])) {
     }
     $json_gambar_final = empty($gambar_final_array) ? '' : json_encode($gambar_final_array, JSON_UNESCAPED_UNICODE);
     $json_gambar_final_escaped = mysqli_real_escape_string($koneksi, $json_gambar_final);
-
-    $query = "UPDATE produk SET 
-              nama_produk = '$nama', deskripsi = '$deskripsi', harga_dasar = '$harga', 
-              tipe_harga = '$tipe', spesifikasi_json = '$json_spesifikasi', gambar_katalog = '$json_gambar_final_escaped' 
-              WHERE id_produk = $id_produk";
-              
+    $query = "UPDATE produk SET id_kategori = $id_kategori, nama_produk = '$nama', deskripsi = '$deskripsi', harga_dasar = '$harga', tipe_harga = '$tipe', spesifikasi_json = '$json_spesifikasi', gambar_katalog = '$json_gambar_final_escaped' WHERE id_produk = $id_produk";
     if(mysqli_query($koneksi, $query)){ echo "<script>alert('Produk berhasil diupdate!'); window.location='admin_produk.php';</script>"; } 
     else { echo "<script>alert('Gagal mengupdate produk!'); window.history.back();</script>"; }
 }
-
-// ---------------------------------------------------------
-// 4. PROSES HAPUS PRODUK KESELURUHAN
-// ---------------------------------------------------------
 if(isset($_GET['hapus'])){
     $id_hapus = intval($_GET['hapus']);
-    
     $q_del = mysqli_query($koneksi, "SELECT gambar_katalog FROM produk WHERE id_produk = $id_hapus");
     $d_del = mysqli_fetch_assoc($q_del);
     if($d_del) {
@@ -183,17 +142,18 @@ if(isset($_GET['hapus'])){
     header("Location: admin_produk.php");
     exit();
 }
-
-$query_produk = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY id_produk DESC");
+$query_produk = mysqli_query($koneksi, "SELECT p.*, k.nama_kategori FROM produk p LEFT JOIN kategori k ON p.id_kategori = k.id_kategori ORDER BY p.id_produk DESC");
 $data_produk = [];
-while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
+while($row = mysqli_fetch_assoc($query_produk)){
+$data_produk[] = $row;
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Produk - Admin Raster Grafik</title>
+    <title>Kelola Produk - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -212,7 +172,6 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
     </style>
 </head>
 <body>
-
     <nav class="navbar-admin mb-4">
         <div class="container-fluid px-4 d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-4">
@@ -221,6 +180,7 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                     <span class="text-secondary fs-6 fw-normal ms-2 border-start border-secondary ps-2">Admin Panel</span>
                 </a>
                 <a href="admin_pesanan.php" class="nav-link-admin"><i class="bi bi-cart-check me-2"></i>Kelola Pesanan</a>
+                <a href="admin_kategori.php" class="nav-link-admin"><i class="bi bi-tags me-2"></i>Kelola Kategori</a>
                 <a href="admin_produk.php" class="nav-link-admin active"><i class="bi bi-box-seam me-2"></i>Kelola Produk</a>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -229,7 +189,6 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
             </div>
         </div>
     </nav>
-
     <div class="container-fluid px-4 pb-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="fw-bold m-0"><i class="bi bi-box-seam text-primary me-2"></i>Katalog Produk</h3>
@@ -237,7 +196,6 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                 <i class="bi bi-plus-lg me-2"></i>Tambah Produk Baru
             </button>
         </div>
-
         <div class="card-admin p-0 overflow-hidden">
             <div class="table-responsive">
                 <table class="table table-admin mb-0">
@@ -245,6 +203,7 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                         <tr>
                             <th width="80">Thumbnail</th>
                             <th>Nama & Deskripsi</th>
+                            <th>Kategori</th>
                             <th>Tipe</th>
                             <th>Harga Dasar</th>
                             <th width="220" class="text-center">Aksi</th>
@@ -257,15 +216,15 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                             if(is_array($decoded)) { $thumbnail = $decoded[0] ?? 'default'; }
                             else if(strpos($gambar_raw, ',') !== false) { $exp = explode(',', $gambar_raw); $thumbnail = $exp[0]; }
                             else { $thumbnail = $gambar_raw; }
-                            
                             $img_src = (strpos(trim($thumbnail), 'http') === 0) ? trim($thumbnail) : 'public/uploads/produk/' . trim($thumbnail);
                         ?>
                         <tr>
                             <td><img src="<?= $img_src; ?>" class="rounded bg-light" style="width: 60px; height: 60px; object-fit: cover; border: 1px solid #e2e8f0;" onerror="this.src='https://via.placeholder.com/60?text=No+Img'"></td>
                             <td>
                                 <strong class="d-block text-dark"><?= htmlspecialchars($row['nama_produk']); ?></strong>
-                                <small class="text-muted d-inline-block text-truncate" style="max-width: 300px;"><?= htmlspecialchars($row['deskripsi']); ?></small>
+                                <small class="text-muted d-inline-block text-truncate" style="max-width: 250px;"><?= htmlspecialchars($row['deskripsi']); ?></small>
                             </td>
+                            <td><span class="badge bg-primary px-2 py-1"><?= htmlspecialchars($row['nama_kategori'] ?? 'Tanpa Kategori'); ?></span></td>
                             <td><span class="badge bg-light text-dark border px-2 py-1"><?= strtoupper($row['tipe_harga']); ?></span></td>
                             <td class="fw-bold text-primary">Rp <?= number_format($row['harga_dasar'], 0, ',', '.'); ?></td>
                             <td class="text-center">
@@ -275,19 +234,15 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                             </td>
                         </tr>
                         <?php endforeach; ?>
-                        
                         <?php if(empty($data_produk)): ?>
-                        <tr><td colspan="5" class="text-center py-4 text-muted">Belum ada data produk.</td></tr>
+                        <tr><td colspan="6" class="text-center py-4 text-muted">Belum ada data produk.</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-
-    <!-- =============================================================
-         MODAL TAMBAH PRODUK BARU
-    ============================================================== -->
+    
     <div class="modal fade" id="modalTambahProduk" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <form action="" method="POST" enctype="multipart/form-data" class="modal-content border-0 rounded-4 shadow-lg">
@@ -297,49 +252,51 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                 </div>
                 <div class="modal-body p-4">
                     <div class="row g-3 mb-3">
-                        <div class="col-md-12"><label class="fw-bold mb-2 small">Nama Produk</label><input type="text" name="nama_produk" class="form-control" placeholder="Cth: Cetak Banner Outdoor" required></div>
+                        <div class="col-md-6">
+                            <label class="fw-bold mb-2 small">Nama Produk</label>
+                            <input type="text" name="nama_produk" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold mb-2 small">Kategori Produk</label>
+                            <select name="id_kategori" class="form-select" required>
+                                <option value="">Pilih Kategori</option>
+                                <?php foreach($data_kat as $k): ?>
+                                <option value="<?= $k['id_kategori'] ?>"><?= htmlspecialchars($k['nama_kategori']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
                         <div class="col-md-6">
                             <label class="fw-bold mb-2 small">Tipe Harga</label>
-                            <select name="tipe_harga" class="form-select" required><option value="meteran">Meteran (m²)</option><option value="pcs">Satuan (Pcs)</option></select>
+                            <select name="tipe_harga" class="form-select" required><option value="meteran">Meteran (m )</option><option value="pcs">Satuan (Pcs)</option></select>
                         </div>
-                        <div class="col-md-6"><label class="fw-bold mb-2 small">Harga Dasar (Rp)</label><input type="number" name="harga_dasar" class="form-control" placeholder="Cth: 15000" required></div>
-                        <div class="col-md-12"><label class="fw-bold mb-2 small">Deskripsi Produk</label><textarea name="deskripsi" class="form-control" rows="2" placeholder="Tuliskan penjelasan produk di sini..." required></textarea></div>
+                        <div class="col-md-6">
+                            <label class="fw-bold mb-2 small">Harga Dasar (Rp)</label>
+                            <input type="number" name="harga_dasar" class="form-control" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="fw-bold mb-2 small">Deskripsi Produk</label>
+                            <textarea name="deskripsi" class="form-control" rows="2" required></textarea>
+                        </div>
                     </div>
-
                     <hr class="my-4 border-secondary border-opacity-25">
-
                     <div class="mb-3">
                         <label class="fw-bold mb-1 text-primary"><i class="bi bi-sliders me-2"></i>Opsi Spesifikasi</label>
-                        <p class="text-muted small mb-3">Tentukan Kategori (misal: Bahan) dan gunakan tabel di bawahnya untuk menambahkan opsi pilihan pelanggan.</p>
-                        
                         <div id="wrapper-spesifikasi">
                             <div class="card p-3 mb-3 border bg-light item-kategori rounded-3 shadow-sm">
                                 <div class="row g-2 mb-3 align-items-center">
                                     <div class="col-md-5">
-                                        <!-- Index [0] khusus untuk form tambah -->
-                                        <input type="text" name="kategori_nama[0]" class="form-control form-control-sm fw-bold border-primary" value="Pilihan Bahan" placeholder="Nama Kategori (Cth: Bahan)" required>
+                                        <input type="text" name="kategori_nama[0]" class="form-control form-control-sm fw-bold border-primary" value="Pilihan Bahan" required>
                                     </div>
                                     <div class="col-md-7 text-end">
                                         <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="hapusKategori(this)"><i class="bi bi-x-circle me-1"></i> Hapus Kategori</button>
                                     </div>
                                 </div>
-                                
-                                <!-- TABEL INPUT OPSI -->
                                 <div class="table-responsive">
                                     <table class="table table-sm table-bordered bg-white mb-2">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Nama Pilihan / Opsi</th>
-                                                <th width="60" class="text-center">Aksi</th>
-                                            </tr>
-                                        </thead>
+                                        <thead class="table-light"><tr><th>Nama Pilihan / Opsi</th><th width="60" class="text-center">Aksi</th></tr></thead>
                                         <tbody id="tbody-opsi-0">
                                             <tr>
-                                                <td><input type="text" name="opsi_nama[0][]" class="form-control form-control-sm" value="Flexi 280g" placeholder="Cth: Flexi 280g" required></td>
-                                                <td class="text-center"><button type="button" class="btn btn-sm btn-danger py-0 px-2" onclick="hapusBarisOpsi(this)"><i class="bi bi-trash"></i></button></td>
-                                            </tr>
-                                            <tr>
-                                                <td><input type="text" name="opsi_nama[0][]" class="form-control form-control-sm" value="Flexi 340g" placeholder="Cth: Flexi 340g" required></td>
+                                                <td><input type="text" name="opsi_nama[0][]" class="form-control form-control-sm" value="Flexi 280g" required></td>
                                                 <td class="text-center"><button type="button" class="btn btn-sm btn-danger py-0 px-2" onclick="hapusBarisOpsi(this)"><i class="bi bi-trash"></i></button></td>
                                             </tr>
                                         </tbody>
@@ -350,9 +307,7 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                         </div>
                         <button type="button" class="btn btn-sm btn-outline-primary rounded-pill fw-bold px-3 mt-2" onclick="tambahKategori('wrapper-spesifikasi')"><i class="bi bi-plus-lg me-1"></i> Tambah Opsi</button>
                     </div>
-
                     <hr class="my-4 border-secondary border-opacity-25">
-
                     <div class="mb-2">
                         <label class="fw-bold mb-2 small text-dark">Upload Gambar Katalog (Multi Upload)</label>
                         <input type="file" name="gambar_katalog[]" class="form-control" accept="image/*" multiple required>
@@ -365,10 +320,7 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
             </form>
         </div>
     </div>
-
-    <!-- =============================================================
-         LOOPING MODAL PREVIEW DETAIL PRODUK (ADMIN VIEW)
-    ============================================================== -->
+    
     <?php foreach ($data_produk as $row) : ?>
     <div class="modal fade" id="modalPreview<?= $row['id_produk']; ?>" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -391,7 +343,6 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                                     else if(!empty($prev_raw)) { $prev_list = [$prev_raw]; }
                                     $prev_list = array_filter(array_map('trim', $prev_list));
                                     if(empty($prev_list)) { $prev_list = ['default']; }
-
                                     $p_count = 0;
                                     foreach($prev_list as $pgbr):
                                         $p_active = ($p_count === 0) ? 'active' : '';
@@ -408,16 +359,13 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                                 <button class="carousel-control-next" type="button" data-bs-target="#carouselPreview<?= $row['id_produk'] ?>" data-bs-slide="next"><span class="carousel-control-next-icon bg-dark rounded-circle p-2"></span></button>
                             <?php endif; ?>
                         </div>
-
                         <div class="p-3">
                             <h5 class="fw-bold mb-1 text-dark"><?= htmlspecialchars($row['nama_produk']); ?></h5>
                             <p class="text-muted small mb-3"><?= htmlspecialchars($row['deskripsi']); ?></p>
-                            
                             <div class="mb-3">
                                 <span class="text-muted small d-block">Mulai dari</span>
-                                <h4 class="fw-bold text-primary mb-0">Rp <?= number_format($row['harga_dasar'], 0, ',', '.'); ?> <small class="text-muted fs-6">/ <?= ($row['tipe_harga']=='meteran')?'m²':'pcs'; ?></small></h4>
+                                <h4 class="fw-bold text-primary mb-0">Rp <?= number_format($row['harga_dasar'], 0, ',', '.'); ?> <small class="text-muted fs-6">/ <?= ($row['tipe_harga']=='meteran')?'m ':'pcs'; ?></small></h4>
                             </div>
-
                             <div class="bg-light p-3 rounded-3 border">
                                 <span class="small fw-bold text-secondary d-block mb-2"><i class="bi bi-sliders me-1"></i> Simulasi Pilihan Pelanggan:</span>
                                 <?php 
@@ -440,7 +388,6 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                                     endif;
                                 ?>
                             </div>
-                            <!-- TOMBOL PESAN (PELANGGAN) SUDAH DIHAPUS DARI SINI -->
                         </div>
                     </div>
                 </div>
@@ -448,44 +395,54 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
         </div>
     </div>
     <?php endforeach; ?>
-
-    <!-- =============================================================
-         LOOPING MODAL EDIT PRODUK
-    ============================================================== -->
+    
     <?php foreach ($data_produk as $row) : ?>
     <div class="modal fade" id="modalEditProduk<?= $row['id_produk']; ?>" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <form action="" method="POST" enctype="multipart/form-data" class="modal-content border-0 rounded-4 shadow-lg">
                 <input type="hidden" name="id_produk" value="<?= $row['id_produk']; ?>">
-                
                 <div class="modal-header border-bottom-0 pb-0">
                     <h5 class="modal-title fw-bold text-primary"><i class="bi bi-pencil-square me-2"></i>Edit Produk</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                
                 <div class="modal-body p-4">
                     <div class="row g-3 mb-3">
-                        <div class="col-md-12"><label class="fw-bold mb-2 small">Nama Produk</label><input type="text" name="nama_produk" class="form-control" value="<?= htmlspecialchars($row['nama_produk']); ?>" required></div>
+                        <div class="col-md-6">
+                            <label class="fw-bold mb-2 small">Nama Produk</label>
+                            <input type="text" name="nama_produk" class="form-control" value="<?= htmlspecialchars($row['nama_produk']); ?>" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold mb-2 small">Kategori Produk</label>
+                            <select name="id_kategori" class="form-select" required>
+                                <option value="">Pilih Kategori</option>
+                                <?php foreach($data_kat as $k): ?>
+                                <option value="<?= $k['id_kategori'] ?>" <?= $row['id_kategori'] == $k['id_kategori'] ? 'selected' : '' ?>><?= htmlspecialchars($k['nama_kategori']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
                         <div class="col-md-6">
                             <label class="fw-bold mb-2 small">Tipe Harga</label>
                             <select name="tipe_harga" class="form-select" required>
-                                <option value="meteran" <?= ($row['tipe_harga'] == 'meteran') ? 'selected' : ''; ?>>Meteran (m²)</option>
+                                <option value="meteran" <?= ($row['tipe_harga'] == 'meteran') ? 'selected' : ''; ?>>Meteran (m )</option>
                                 <option value="pcs" <?= ($row['tipe_harga'] == 'pcs') ? 'selected' : ''; ?>>Satuan (Pcs)</option>
                             </select>
                         </div>
-                        <div class="col-md-6"><label class="fw-bold mb-2 small">Harga Dasar (Rp)</label><input type="number" name="harga_dasar" class="form-control" value="<?= $row['harga_dasar']; ?>" required></div>
-                        <div class="col-md-12"><label class="fw-bold mb-2 small">Deskripsi Produk</label><textarea name="deskripsi" class="form-control" rows="2" required><?= htmlspecialchars($row['deskripsi']); ?></textarea></div>
+                        <div class="col-md-6">
+                            <label class="fw-bold mb-2 small">Harga Dasar (Rp)</label>
+                            <input type="number" name="harga_dasar" class="form-control" value="<?= $row['harga_dasar']; ?>" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="fw-bold mb-2 small">Deskripsi Produk</label>
+                            <textarea name="deskripsi" class="form-control" rows="2" required><?= htmlspecialchars($row['deskripsi']); ?></textarea>
+                        </div>
                     </div>
-
                     <hr class="my-4 border-secondary border-opacity-25">
-
                     <div class="mb-3">
                         <label class="fw-bold mb-1 text-primary"><i class="bi bi-sliders me-2"></i>Opsi Spesifikasi</label>
                         <div id="wrapper-spesifikasi-edit-<?= $row['id_produk']; ?>">
                             <?php 
                             $spek_edit = json_decode($row['spesifikasi_json'], true);
-                            $kat_idx = 1000; 
-                            
+                            $kat_idx = 1000;
                             if (!empty($spek_edit) && is_array($spek_edit)): 
                                 foreach($spek_edit as $kategori => $opsis): 
                                     $kat_idx++;
@@ -499,16 +456,9 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                                             <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="hapusKategori(this)"><i class="bi bi-x-circle me-1"></i> Hapus Kategori</button>
                                         </div>
                                     </div>
-                                    
-                                    <!-- TABEL INPUT OPSI (EDIT MODE) -->
                                     <div class="table-responsive">
                                         <table class="table table-sm table-bordered bg-white mb-2">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>Nama Pilihan / Opsi</th>
-                                                    <th width="60" class="text-center">Aksi</th>
-                                                </tr>
-                                            </thead>
+                                            <thead class="table-light"><tr><th>Nama Pilihan / Opsi</th><th width="60" class="text-center">Aksi</th></tr></thead>
                                             <tbody id="tbody-opsi-edit-<?= $row['id_produk']; ?>-<?= $kat_idx ?>">
                                                 <?php foreach($opsis as $opt): ?>
                                                 <tr>
@@ -529,7 +479,7 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                                 <div class="card p-3 mb-3 border bg-light item-kategori rounded-3 shadow-sm">
                                     <div class="row g-2 mb-3 align-items-center">
                                         <div class="col-md-5">
-                                            <input type="text" name="kategori_nama[<?= $kat_idx ?>]" class="form-control form-control-sm fw-bold border-primary" placeholder="Cth: Bahan" required>
+                                            <input type="text" name="kategori_nama[<?= $kat_idx ?>]" class="form-control form-control-sm fw-bold border-primary" required>
                                         </div>
                                         <div class="col-md-7 text-end">
                                             <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="hapusKategori(this)"><i class="bi bi-x-circle me-1"></i> Hapus Kategori</button>
@@ -540,7 +490,7 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                                             <thead class="table-light"><tr><th>Nama Pilihan / Opsi</th><th width="60" class="text-center">Aksi</th></tr></thead>
                                             <tbody id="tbody-opsi-edit-<?= $row['id_produk']; ?>-<?= $kat_idx ?>">
                                                 <tr>
-                                                    <td><input type="text" name="opsi_nama[<?= $kat_idx ?>][]" class="form-control form-control-sm" placeholder="Masukkan opsi..." required></td>
+                                                    <td><input type="text" name="opsi_nama[<?= $kat_idx ?>][]" class="form-control form-control-sm" required></td>
                                                     <td class="text-center"><button type="button" class="btn btn-sm btn-danger py-0 px-2" onclick="hapusBarisOpsi(this)"><i class="bi bi-trash"></i></button></td>
                                                 </tr>
                                             </tbody>
@@ -552,12 +502,9 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                         </div>
                         <button type="button" class="btn btn-sm btn-outline-primary rounded-pill fw-bold px-3 mt-2" onclick="tambahKategori('wrapper-spesifikasi-edit-<?= $row['id_produk']; ?>')"><i class="bi bi-plus-lg me-1"></i> Tambah Opsi</button>
                     </div>
-
                     <hr class="my-4 border-secondary border-opacity-25">
-
                     <div class="mb-3">
                         <label class="fw-bold mb-2 small text-dark"><i class="bi bi-images me-2"></i>Kelola Gambar Produk Saat Ini (Klik Sampah untuk Hapus)</label>
-                        
                         <div class="d-flex flex-wrap gap-2 mb-3 bg-light p-3 border rounded-3">
                             <?php 
                                 $gbr_raw = $row['gambar_katalog'];
@@ -566,9 +513,8 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                                 if (is_array($dec)) { $gbr_list = $dec; }
                                 else if (strpos($gbr_raw, ',') !== false) { $gbr_list = explode(',', $gbr_raw); }
                                 else if (!empty($gbr_raw)) { $gbr_list = [$gbr_raw]; }
-
                                 if(empty($gbr_list) || (count($gbr_list)==1 && $gbr_list[0]=='')):
-                                    echo '<span class="text-muted small">Tidak ada gambar tersimpan.</span>';
+                                    echo '<span class="text-muted small">Tidak ada gambar.</span>';
                                 else:
                                     foreach($gbr_list as $gbr):
                                         $gbr = trim($gbr);
@@ -577,11 +523,10 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                             ?>
                                 <div class="position-relative border rounded p-1 bg-white shadow-sm text-center" style="width: 85px;">
                                     <img src="<?= $img_src; ?>" class="rounded" style="width: 100%; height: 75px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/75?text=No+Img'">
-                                    
-                                    <a href="?hapus_gambar=<?= urlencode($gbr); ?>&id_produk=<?= $row['id_produk']; ?>" 
-                                       onclick="return confirm('Yakin ingin menghapus gambar ini secara permanen?');" 
-                                       class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center rounded-circle shadow" 
-                                       style="width: 22px; height: 22px; z-index: 10;" title="Hapus Gambar">
+                                    <a href="?hapus_gambar=<?= urlencode($gbr); ?>&id_produk=<?= $row['id_produk']; ?>"
+                                        onclick="return confirm('Yakin ingin menghapus gambar ini secara permanen?');"
+                                        class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center rounded-circle shadow"
+                                        style="width: 22px; height: 22px; z-index: 10;">
                                         <i class="bi bi-trash text-white" style="font-size: 0.75rem;"></i>
                                     </a>
                                 </div>
@@ -590,13 +535,10 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                                 endif; 
                             ?>
                         </div>
-
                         <label class="fw-bold mb-2 small text-dark">Tambah Gambar Baru (Opsional)</label>
                         <input type="file" name="gambar_katalog_baru[]" class="form-control" accept="image/*" multiple>
                     </div>
-
                 </div>
-                
                 <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
                     <button type="button" class="btn btn-light border px-4 rounded-pill fw-bold" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" name="update_produk" class="btn btn-primary px-4 rounded-pill fw-bold">Update Produk</button>
@@ -605,25 +547,21 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
         </div>
     </div>
     <?php endforeach; ?>
-
-    <!-- SCRIPT JS UNTUK DINAMISASI TABEL OPSI -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    let globalKatIndex = 9999; 
-
+    let globalKatIndex = 9999;
     function tambahKategori(containerId) {
         globalKatIndex++;
         let html = `
         <div class="card p-3 mb-3 border bg-light item-kategori rounded-3 shadow-sm">
             <div class="row g-2 mb-3 align-items-center">
                 <div class="col-md-5">
-                    <input type="text" name="kategori_nama[${globalKatIndex}]" class="form-control form-control-sm fw-bold border-primary" placeholder="Nama Kategori (Cth: Bahan)" required>
+                    <input type="text" name="kategori_nama[${globalKatIndex}]" class="form-control form-control-sm fw-bold border-primary" required>
                 </div>
                 <div class="col-md-7 text-end">
                     <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="hapusKategori(this)"><i class="bi bi-x-circle me-1"></i> Hapus Kategori</button>
                 </div>
             </div>
-            
             <div class="table-responsive">
                 <table class="table table-sm table-bordered bg-white mb-2">
                     <thead class="table-light">
@@ -634,7 +572,7 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
                     </thead>
                     <tbody id="tbody-opsi-baru-${globalKatIndex}">
                         <tr>
-                            <td><input type="text" name="opsi_nama[${globalKatIndex}][]" class="form-control form-control-sm" placeholder="Masukkan opsi..." required></td>
+                            <td><input type="text" name="opsi_nama[${globalKatIndex}][]" class="form-control form-control-sm" required></td>
                             <td class="text-center"><button type="button" class="btn btn-sm btn-danger py-0 px-2" onclick="hapusBarisOpsi(this)"><i class="bi bi-trash"></i></button></td>
                         </tr>
                     </tbody>
@@ -642,12 +580,10 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
             </div>
             <button type="button" class="btn btn-sm btn-secondary rounded-pill w-auto align-self-start" style="font-size:0.75rem;" onclick="tambahBarisOpsi('tbody-opsi-baru-${globalKatIndex}', ${globalKatIndex})"><i class="bi bi-plus me-1"></i>Tambah Baris Opsi</button>
         </div>`;
-        
         document.getElementById(containerId).insertAdjacentHTML('beforeend', html);
     }
-
     function hapusKategori(btn) {
-        let wrapper = btn.closest('.mb-3'); 
+        let wrapper = btn.closest('.mb-3');
         let items = wrapper.querySelectorAll('.item-kategori');
         if(items.length > 1) {
             btn.closest('.item-kategori').remove();
@@ -655,16 +591,14 @@ while($row = mysqli_fetch_assoc($query_produk)){ $data_produk[] = $row; }
             alert('Minimal harus ada 1 kategori opsi spesifikasi!');
         }
     }
-
     function tambahBarisOpsi(tbodyId, katIndex) {
         let html = `
         <tr>
-            <td><input type="text" name="opsi_nama[${katIndex}][]" class="form-control form-control-sm" placeholder="Masukkan opsi..." required></td>
+            <td><input type="text" name="opsi_nama[${katIndex}][]" class="form-control form-control-sm" required></td>
             <td class="text-center"><button type="button" class="btn btn-sm btn-danger py-0 px-2" onclick="hapusBarisOpsi(this)"><i class="bi bi-trash"></i></button></td>
         </tr>`;
         document.getElementById(tbodyId).insertAdjacentHTML('beforeend', html);
     }
-
     function hapusBarisOpsi(btn) {
         let tbody = btn.closest('tbody');
         if(tbody.querySelectorAll('tr').length > 1) {

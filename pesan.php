@@ -96,7 +96,7 @@ $satuan = $meteran ? 'm²' : 'pcs';
         .select-chip { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; background: rgba(35, 115, 244, 0.12); color: var(--color-1); font-size: 0.85rem; pointer-events: none; transition: background 0.3s, color 0.3s; }
         .select-wrap:hover .select-chip, .select-wrap:focus-within .select-chip { background: var(--color-1); color: #ffffff; }
 
-        .floating-wa { position: fixed; bottom: 25px; right: 25px; background: linear-gradient(135deg, #22c55e, #15803d); color: white; border-radius: 50px; padding: 14px 24px; box-shadow: 0 8px 25px rgba(34,197,94,0.4); z-index: 1000; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
+        .floating-wa { position: fixed; bottom: 25px; right: 25px; background: linear-gradient(135deg, #22c55e, #15803d); color: white; border-radius: 50px; padding: 14px 24px; box-shadow: 0 8px 25px rgba(34,197,94,0.4); z-index: 2147483647; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
         .floating-wa:hover { transform: translateY(-4px) scale(1.05); color: white; box-shadow: 0 12px 30px rgba(34,197,94,0.6); }
         .floating-wa { cursor: grab; touch-action: none; user-select: none; -webkit-user-drag: none; }
         .floating-wa.dragging { transition: none; cursor: grabbing; transform: scale(1.05); box-shadow: 0 14px 34px rgba(34,197,94,0.55); }
@@ -335,7 +335,6 @@ $satuan = $meteran ? 'm²' : 'pcs';
     <script>
         (function () {
             const wa = document.querySelector('.floating-wa');
-            const kunci = 'posisiWa';
             let mulaiX = 0, mulaiY = 0, awalKiri = 0, awalAtas = 0, geser = false, aktif = false;
 
             function pasang(kiri, atas) {
@@ -346,11 +345,6 @@ $satuan = $meteran ? 'm²' : 'pcs';
                 wa.style.right = 'auto';
                 wa.style.bottom = 'auto';
             }
-
-            try {
-                const simpan = JSON.parse(localStorage.getItem(kunci));
-                if (simpan) { pasang(simpan.kiri, simpan.atas); }
-            } catch (e) {}
 
             wa.addEventListener('pointerdown', function (e) {
                 aktif = true;
@@ -377,10 +371,6 @@ $satuan = $meteran ? 'm²' : 'pcs';
                 if (!aktif) { return; }
                 aktif = false;
                 wa.classList.remove('dragging');
-                if (geser) {
-                    const r = wa.getBoundingClientRect();
-                    try { localStorage.setItem(kunci, JSON.stringify({ kiri: r.left, atas: r.top })); } catch (e) {}
-                }
             }
 
             wa.addEventListener('pointerup', selesai);
