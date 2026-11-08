@@ -72,8 +72,9 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
         .btn-search { border-radius: 0 50px 50px 0; background: var(--grad-primary); border: none; color: white; padding: 0 24px; }
         .btn-grad-primary { background: var(--grad-primary); color: white; border: none; border-radius: 50px; font-weight: 700; box-shadow: 0 4px 15px rgba(35, 115, 244, 0.3); transition: 0.3s; }
         .btn-grad-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(35, 115, 244, 0.5); color: white; }
-        .btn-grad-secondary { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); color: #0f172a; border: 1px solid #cbd5e1; border-radius: 50px; font-weight: 700; transition: 0.3s; }
-        .btn-grad-secondary:hover { background: #ffffff; color: var(--color-1); border-color: var(--color-1); box-shadow: 0 4px 15px rgba(35, 115, 244, 0.15); transform: translateY(-2px); }
+        .btn-grad-secondary { background: #ffffff; color: var(--color-1); border: 1px solid rgba(87, 142, 245, 0.25); border-radius: 50px; font-weight: 700; box-shadow: 0 4px 12px rgba(35, 115, 244, 0.12); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-grad-secondary:hover, .btn-grad-secondary:focus-visible { background: var(--grad-primary); color: #ffffff; border-color: transparent; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(35, 115, 244, 0.35); }
+        .btn-grad-secondary:focus-visible { outline: 3px solid rgba(101, 208, 244, 0.6); outline-offset: 2px; }
         .icon-btn { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #ffffff; color: var(--color-1); font-size: 1.2rem; text-decoration: none; border: 1px solid rgba(87, 142, 245, 0.25); box-shadow: 0 4px 12px rgba(35, 115, 244, 0.12); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .icon-btn:hover { background: var(--grad-primary); color: #ffffff; border-color: transparent; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(35, 115, 244, 0.35); }
         .icon-btn:focus-visible { outline: 3px solid rgba(101, 208, 244, 0.6); outline-offset: 2px; }
@@ -222,7 +223,7 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
                 if ($mode == 'produk') {
                     if ($search != '') echo 'Hasil pencarian: ' . htmlspecialchars($_GET['q']);
                     elseif ($semua == 1) echo 'Semua Produk';
-                    else echo 'Kategori: ' . htmlspecialchars($kat_info['nama_kategori']);
+                    else echo htmlspecialchars($kat_info['nama_kategori']);
                 } else {
                     echo 'Katalog Kategori';
                 }
