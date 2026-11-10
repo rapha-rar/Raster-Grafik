@@ -179,10 +179,9 @@ if(isset($_SESSION['id_user']) && $_SESSION['role'] == 'pelanggan'){
                                 <svg class="banner-art" viewBox="0 0 360 230" fill="none" stroke="currentColor" stroke-width="1.5" font-family="Plus Jakarta Sans, sans-serif" aria-hidden="true">
                                     <rect x="56" y="52" width="270" height="130" fill="rgba(255,255,255,.14)" stroke-width="2"/>
                                     <path d="M56 30H326M56 24V36M326 24V36"/>
-                                    <text x="191" y="20" text-anchor="middle" fill="currentColor" stroke="none" font-size="13" font-weight="600">panjang</text>
+                                    <text x="191" y="20" text-anchor="middle" fill="currentColor" stroke="none" font-size="13" font-weight="600">Panjang</text>
                                     <path d="M34 52V182M28 52H40M28 182H40"/>
-                                    <text transform="rotate(-90 18 117)" x="18" y="117" text-anchor="middle" fill="currentColor" stroke="none" font-size="13" font-weight="600">lebar</text>
-                                    <text x="191" y="122" text-anchor="middle" fill="currentColor" stroke="none" font-size="15" font-weight="700">p   l = luas (m )</text>
+                                    <text transform="rotate(-90 18 117)" x="18" y="117" text-anchor="middle" fill="currentColor" stroke="none" font-size="13" font-weight="600">Lebar</text>
                                 </svg>
                             </div>
                         </div>
